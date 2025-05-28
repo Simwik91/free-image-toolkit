@@ -79,7 +79,7 @@
             max-width: 400px;
             border: 1px solid #ccc;
         }
-        #loading {
+        .loading {
             display: none;
             color: #007acc;
             font-weight: bold;
@@ -195,7 +195,7 @@
         <p><i>Remove backgrounds from any image. Processing may take 5-15 seconds.</i></p>
         <div class="drag-drop-area" id="bgDragArea">Drag your picture here or click to browse</div>
         <input type="file" id="bgUpload" accept="image/*,.heic,.heif,.tiff,.tif" style="display: none;">
-        <div id="loading">Processing... (Please wait)</div>
+        <div id="loading" class="loading">Processing... (Please wait)</div>
         <canvas id="bgCanvas"></canvas>
         <button id="removeBgBtn">Remove Background</button>
         <button id="resetBg" style="display: none;">Reset</button>
@@ -205,9 +205,11 @@
     <!-- Image Converter -->
     <div id="convert" class="tool-section">
         <h2>Image Converter</h2>
+        <p><i>Convert your image to a different format. Processing may take a few seconds.</i></p>
         <div class="drag-drop-area" id="convertDragArea">Drag your picture here or click to browse</div>
         <input type="file" id="convertUpload" accept="image/*,.heic,.heif,.tiff,.tif" style="display: none;">
         <canvas id="convertCanvas"></canvas>
+        <div id="convertLoading" class="loading">Processing... (Please wait)</div>
         <select id="outputFormat">
             <option value="png">PNG</option>
             <option value="jpeg">JPEG</option>
@@ -218,8 +220,7 @@
             <option value="heic">HEIC</option>
             <option value="avif">AVIF</option>
         </select>
-        <button id="convertBtn">Convert</button>
-        <button id="downloadConvert" style="display: none;">Download</button>
+        <button id="convertBtn">Convert & Download</button>
     </div>
 
     <hr>
@@ -249,7 +250,6 @@
         let isDrawing = false;
         let originalCropImage = null;
         let originalBgImage = null;
-        let originalConvertImage = null;
 
         // ===== TAB SWITCHING =====
         function switchTab(tabName) {
@@ -283,8 +283,7 @@
                     const ctx = canvas.getContext('2d');
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     document.getElementById('convertUpload').value = '';
-                    document.getElementById('downloadConvert').style.display = 'none';
-                    originalConvertImage = null;
+                    document.getElementById('convertLoading').style.display = 'none';
                 }
             }
 
@@ -367,7 +366,7 @@
                             canvas.width = image.width;
                             canvas.height = image.height;
                             canvas.getContext('2d').drawImage(image.getCanvas(), 0, 0);
-                            const img headlines = new Image();
+                            const img = new Image();
                             img.onload = () => resolve(img);
                             img.onerror = () => reject(new Error('Failed to load TIFF image'));
                             img.src = canvas.toDataURL('image/png');
@@ -605,13 +604,12 @@
             }
             try {
                 const img = await loadImage(file);
-                originalConvertImage = img;
                 const canvas = document.getElementById('convertCanvas');
                 const ctx = canvas.getContext('2d');
                 canvas.width = Math.min(img.width, 400);
                 canvas.height = img.width > 400 ? (img.height * 400 / img.width) : img.height;
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                document.getElementById('downloadConvert').style.display = 'none';
+                document.getElementById('convertLoading').style.display = 'none';
             } catch (err) {
                 alert('Error loading image: ' + err.message);
             }
@@ -620,12 +618,14 @@
         document.getElementById('convertBtn').addEventListener('click', async () => {
             const fileInput = document.getElementById('convertUpload');
             const outputFormat = document.getElementById('outputFormat').value;
+            const loading = document.getElementById('convertLoading');
 
             if (!fileInput.files[0]) {
                 alert("Upload an image first!");
                 return;
             }
 
+            loading.style.display = 'block';
             try {
                 const img = await loadImage(fileInput.files[0]);
                 const canvas = document.createElement('canvas');
@@ -634,52 +634,43 @@
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0);
 
+                const link = document.createElement('a');
                 if (outputFormat === 'heic') {
                     const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
                     const image = await Image.load(pngBlob);
                     const heifBuffer = await image.toBuffer('heic');
                     const blob = new Blob([heifBuffer], { type: 'image/heic' });
-                    const link = document.getElementById('downloadConvert');
                     link.href = URL.createObjectURL(blob);
                     link.download = `converted.heic`;
-                    link.style.display = 'inline-block';
-                    link.click();
                 } else if (outputFormat === 'tiff') {
                     const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
                     const image = await Image.load(pngBlob);
                     const tiffBuffer = await image.toBuffer('tiff');
                     const blob = new Blob([tiffBuffer], { type: 'image/tiff' });
-                    const link = document.getElementById('downloadConvert');
                     link.href = URL.createObjectURL(blob);
                     link.download = `converted.tiff`;
-                    link.style.display = 'inline-block';
-                    link.click();
                 } else if (outputFormat === 'avif') {
                     const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
                     const image = await Image.load(pngBlob);
                     const avifBuffer = await image.toBuffer('avif');
                     const blob = new Blob([avifBuffer], { type: 'image/avif' });
-                    const link = document.getElementById('downloadConvert');
                     link.href = URL.createObjectURL(blob);
                     link.download = `converted.avif`;
-                    link.style.display = 'inline-block';
-                    link.click();
                 } else {
-                    const link = document.getElementById('downloadConvert');
                     link.href = canvas.toDataURL(`image/${outputFormat}`, outputFormat === 'jpeg' ? 0.9 : 1.0);
                     link.download = `converted.${outputFormat}`;
-                    link.style.display = 'inline-block';
-                    link.click();
                 }
+                link.click();
             } catch (err) {
                 alert('Error converting image: ' + err.message);
+            } finally {
+                loading.style.display = 'none';
             }
         });
 
         // ===== DOWNLOAD FUNCTIONS =====
         document.getElementById('downloadCrop').addEventListener('click', () => downloadCanvas('cropCanvas', 'cropped.png'));
         document.getElementById('downloadBg').addEventListener('click', () => downloadCanvas('bgCanvas', 'no-bg.png'));
-        document.getElementById('downloadConvert').addEventListener('click', () => {}); // Handled in convertBtn
 
         function downloadCanvas(canvasId, filename) {
             const canvas = document.getElementById(canvasId);
