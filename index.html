@@ -17,7 +17,6 @@
      crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/image-js@0.35.0/dist/image.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/libheif-js@1.17.0/libheif.js"></script>
-    <script src="https://unpkg.com/@imgly/background-removal@1/dist/index.umd.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -26,20 +25,9 @@
             background: #f4f4f4;
             color: #333;
         }
-        h1 {
-            font-size: 2em;
-            margin-bottom: 0.2em;
-        }
-        h2 {
-            font-size: 1.5em;
-            margin-top: 2em;
-            margin-bottom: 0.5em;
-        }
-        p {
-            margin-top: 0;
-            margin-bottom: 2em;
-            color: #666;
-        }
+        h1 { font-size: 2em; margin-bottom: 0.2em; }
+        h2 { font-size: 1.5em; margin-top: 2em; margin-bottom: 0.5em; }
+        p { margin-top: 0; margin-bottom: 2em; color: #666; }
         input, select, button {
             margin: 0.5em auto;
             padding: 0.75em;
@@ -57,12 +45,8 @@
             border: none;
             cursor: pointer;
         }
-        button:hover {
-            background-color: #005fa3;
-        }
-        .tab-buttons {
-            margin-bottom: 2em;
-        }
+        button:hover { background-color: #005fa3; }
+        .tab-buttons { margin-bottom: 2em; }
         .tab-buttons button {
             width: auto;
             min-width: 120px;
@@ -70,35 +54,17 @@
             display: inline-block;
             padding: 0.75em 1.5em;
         }
-        .tab-buttons button.active-tab {
-            background-color: #005fa3;
-        }
-        canvas {
-            margin: 1em auto;
-            display: block;
-            max-width: 400px;
-            border: 1px solid #ccc;
-        }
-        .loading {
-            display: none;
-            color: #007acc;
-            font-weight: bold;
-            margin: 1em auto;
-        }
-        .crop-controls {
-            margin-bottom: 1em;
-        }
+        .tab-buttons button.active-tab { background-color: #005fa3; }
+        canvas { margin: 1em auto; display: block; max-width: 400px; border: 1px solid #ccc; }
+        .loading { display: none; color: #007acc; font-weight: bold; margin: 1em auto; }
+        .crop-controls { margin-bottom: 1em; }
         .crop-controls input, .crop-controls select {
             width: 45%;
             max-width: 180px;
             display: inline-block;
         }
-        .tool-section {
-            display: none;
-        }
-        .tool-section.active {
-            display: block;
-        }
+        .tool-section { display: none; }
+        .tool-section.active { display: block; }
         .drag-drop-area {
             width: 90%;
             max-width: 400px;
@@ -111,20 +77,9 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
-        .drag-drop-area.drag-over {
-            background: #e6f0fa;
-        }
-        hr {
-            margin: 2em auto;
-            width: 80%;
-            border: 0;
-            border-top: 1px solid #ddd;
-        }
-        footer {
-            margin-top: 4em;
-            font-size: 0.85em;
-            color: #888;
-        }
+        .drag-drop-area.drag-over { background: #e6f0fa; }
+        hr { margin: 2em auto; width: 80%; border: 0; border-top: 1px solid #ddd; }
+        footer { margin-top: 4em; font-size: 0.85em; color: #888; }
         .sister-site-btn {
             display: block;
             background: #ff6600;
@@ -139,21 +94,10 @@
             transition: background-color 0.3s ease;
             text-align: center;
         }
-        .sister-site-btn:hover {
-            background-color: #cc5200;
-        }
-        .sister-tools-section {
-            margin: 2em auto;
-        }
-        .sister-tools-section h2 {
-            font-size: 1.8em;
-            color: #333;
-        }
-        .sister-tools-section p {
-            font-size: 1em;
-            max-width: 600px;
-            margin: 1em auto;
-        }
+        .sister-site-btn:hover { background-color: #cc5200; }
+        .sister-tools-section { margin: 2em auto; }
+        .sister-tools-section h2 { font-size: 1.8em; color: #333; }
+        .sister-tools-section p { font-size: 1em; max-width: 600px; margin: 1em auto; }
     </style>
 </head>
 <body>
@@ -250,13 +194,13 @@
         let isDrawing = false;
         let originalCropImage = null;
         let originalBgImage = null;
+        let bgRemovalReady = false;
 
         // ===== TAB SWITCHING =====
         function switchTab(tabName) {
             const currentTab = document.querySelector('.tool-section.active');
             const currentTabId = currentTab ? currentTab.id : null;
 
-            // Reset the current tab's state
             if (currentTabId) {
                 if (currentTabId === 'crop') {
                     const canvas = document.getElementById('cropCanvas');
@@ -288,7 +232,6 @@
                 }
             }
 
-            // Switch to the new tab
             document.querySelectorAll('.tool-section').forEach(section => {
                 section.classList.remove('active');
             });
@@ -345,13 +288,9 @@
                             const heifBuffer = new Uint8Array(e.target.result);
                             const decoder = new libheif.HeifDecoder();
                             const data = decoder.decode(heifBuffer);
-                            if (!data || data.length === 0) {
-                                throw new Error('Invalid HEIC file');
-                            }
+                            if (!data || data.length === 0) throw new Error('Invalid HEIC file');
                             const imgData = data[0].display(data[0], { quality: 1 });
-                            const blob = await new Promise(resolveBlob => {
-                                imgData.toBlob(resolveBlob, 'image/png');
-                            });
+                            const blob = await new Promise(resolveBlob => imgData.toBlob(resolveBlob, 'image/png'));
                             const img = new Image();
                             img.onload = () => resolve(img);
                             img.onerror = () => reject(new Error('Failed to load HEIC image'));
@@ -395,165 +334,57 @@
             });
         }
 
-        // ===== CROP TOOL =====
-        document.getElementById('pixelCropInputs').style.display = 'block';
-
-        document.getElementById('cropMode').addEventListener('change', (e) => {
-            document.getElementById('pixelCropInputs').style.display = e.target.value === 'pixel' ? 'block' : 'none';
-            const canvas = document.getElementById('cropCanvas');
-            const ctx = canvas.getContext('2d');
-            if (currentImage) {
-                canvas.width = Math.min(currentImage.width, 400);
-                canvas.height = currentImage.width > 400 ? (currentImage.height * 400 / currentImage.width) : currentImage.height;
-                ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
-            }
-            cropRect = null;
-        });
-
-        document.getElementById('cropUpload').addEventListener('change', async function(e) {
-            const file = e.target.files[0];
-            if (!file || !file.type.match(/image\/(png|jpeg|webp|bmp|gif|tiff|tif|heic|heif)/)) {
-                alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).');
-                return;
-            }
-            try {
-                currentImage = await loadImage(file);
-                originalCropImage = currentImage;
-                const canvas = document.getElementById('cropCanvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = Math.min(currentImage.width, 400);
-                canvas.height = currentImage.width > 400 ? (currentImage.height * 400 / currentImage.width) : currentImage.height;
-                ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
-                cropRect = null;
-                document.getElementById('downloadCrop').style.display = 'none';
-                document.getElementById('resetCrop').style.display = 'inline-block';
-            } catch (err) {
-                alert('Error loading image: ' + err.message);
-            }
-        });
-
-        document.getElementById('cropCanvas').addEventListener('mousedown', (e) => {
-            if (document.getElementById('cropMode').value !== 'free') return;
-            const canvas = document.getElementById('cropCanvas');
-            const rect = canvas.getBoundingClientRect();
-            cropStart = {
-                x: (e.clientX - rect.left) * (canvas.width / rect.width),
-                y: (e.clientY - rect.top) * (canvas.height / rect.height)
-            };
-            isDrawing = true;
-        });
-
-        document.getElementById('cropCanvas').addEventListener('mousemove', (e) => {
-            if (!isDrawing || document.getElementById('cropMode').value !== 'free') return;
-            const canvas = document.getElementById('cropCanvas');
-            const ctx = canvas.getContext('2d');
-            const rect = canvas.getBoundingClientRect();
-            const currentX = (e.clientX - rect.left) * (canvas.width / rect.width);
-            const currentY = (e.clientY - rect.top) * (canvas.height / rect.height);
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = 'red';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(cropStart.x, cropStart.y, currentX - cropStart.x, currentY - cropStart.y);
-            cropRect = {
-                x: Math.min(cropStart.x, currentX),
-                y: Math.min(cropStart.y, currentY),
-                width: Math.abs(currentX - cropStart.x),
-                height: Math.abs(currentY - cropStart.y)
-            };
-        });
-
-        document.getElementById('cropCanvas').addEventListener('mouseup', () => {
-            isDrawing = false;
-        });
-
-        document.getElementById('cropBtn').addEventListener('click', () => {
-            const canvas = document.getElementById('cropCanvas');
-            const ctx = canvas.getContext('2d');
-            const cropMode = document.getElementById('cropMode').value;
-
-            if (!currentImage) {
-                alert("Upload an image first!");
-                return;
-            }
-
-            let newCanvas = document.createElement('canvas');
-            let newCtx = newCanvas.getContext('2d');
-
-            if (cropMode === 'free' && cropRect) {
-                newCanvas.width = cropRect.width;
-                newCanvas.height = cropRect.height;
-                newCtx.drawImage(currentImage, cropRect.x, cropRect.y, cropRect.width, cropRect.height, 0, 0, cropRect.width, cropRect.height);
-            } else if (cropMode === 'pixel') {
-                let width = parseInt(document.getElementById('cropWidth').value);
-                let height = parseInt(document.getElementById('cropHeight').value);
-
-                if (!width || !height || width <= 0 || height <= 0) {
-                    alert("Please enter valid width and height values.");
+        // ===== BACKGROUND REMOVER INITIALIZATION =====
+        async function loadScriptWithRetry(url, retries = 3, delay = 1000) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const script = document.createElement('script');
+                    script.src = url;
+                    script.async = true;
+                    document.head.appendChild(script);
+                    await new Promise((resolve, reject) => {
+                        script.onload = () => {
+                            console.log('Script loaded successfully.');
+                            resolve();
+                        };
+                        script.onerror = () => {
+                            console.error('Script loading failed.');
+                            reject(new Error('Failed to load background removal library'));
+                        };
+                    });
                     return;
+                } catch (err) {
+                    console.warn(`Attempt ${i + 1} to load script failed. Retrying...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
                 }
-
-                width = Math.min(width, currentImage.width);
-                height = Math.min(height, currentImage.height);
-
-                const aspectRatio = currentImage.width / currentImage.height;
-                if (width / height > aspectRatio) {
-                    width = height * aspectRatio;
-                } else {
-                    height = width / aspectRatio;
-                }
-
-                newCanvas.width = width;
-                newCanvas.height = height;
-                newCtx.drawImage(currentImage, 0, 0, currentImage.width, currentImage.height, 0, 0, width, height);
-            } else {
-                alert("Select a crop area or enter pixel dimensions!");
-                return;
             }
+            throw new Error('Failed to load script after multiple attempts');
+        }
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            canvas.width = Math.min(newCanvas.width, 400);
-            canvas.height = newCanvas.width > 400 ? (newCanvas.height * 400 / newCanvas.width) : newCanvas.height;
-            ctx.drawImage(newCanvas, 0, 0, canvas.width, canvas.height);
-            document.getElementById('downloadCrop').style.display = 'inline-block';
-        });
-
-        document.getElementById('resetCrop').addEventListener('click', () => {
-            if (originalCropImage) {
-                const canvas = document.getElementById('cropCanvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = Math.min(originalCropImage.width, 400);
-                canvas.height = originalCropImage.width > 400 ? (originalCropImage.height * 400 / originalCropImage.width) : originalCropImage.height;
-                ctx.drawImage(originalCropImage, 0, 0, canvas.width, canvas.height);
-                cropRect = null;
-                document.getElementById('downloadCrop').style.display = 'none';
-                document.getElementById('cropWidth').value = '';
-                document.getElementById('cropHeight').value = '';
-            }
-        });
-
-        // ===== BACKGROUND REMOVER =====
-        // Initialize Background Removal Library
-        let bgRemovalReady = false;
         async function initializeBgRemoval() {
             try {
+                console.log('Checking if imglyRemoveBackground is defined...');
                 if (typeof imglyRemoveBackground === 'undefined') {
-                    throw new Error('Background removal library failed to load');
+                    console.log('imglyRemoveBackground is undefined. Loading script...');
+                    await loadScriptWithRetry('https://unpkg.com/@imgly/background-removal@1/dist/index.umd.js');
+                } else {
+                    console.log('imglyRemoveBackground is already defined.');
                 }
-                // Preload WebAssembly module
-                await imglyRemoveBackground({}); // Warm up the model
+                console.log('Warming up the library...');
+                await imglyRemoveBackground({});
+                console.log('Library warmed up successfully.');
                 bgRemovalReady = true;
-                console.log('Background removal library initialized');
+                console.log('Background removal library ready');
             } catch (err) {
-                console.error('Failed to initialize background removal:', err);
+                console.error('Background removal initialization failed:', err);
                 bgRemovalReady = false;
             }
         }
 
-        // Load library on page load
+        // Initialize on page load
         initializeBgRemoval();
 
+        // ===== BACKGROUND REMOVER =====
         document.getElementById('bgUpload').addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (!file || !file.type.match(/image\/(png|jpeg|webp|bmp|gif|tiff|tif|heic|heif)/)) {
@@ -586,8 +417,14 @@
                 return;
             }
 
+            // Check for WebAssembly support
+            if (typeof WebAssembly === 'undefined') {
+                alert('Your browser does not support WebAssembly, which is required for background removal. Please use a modern browser.');
+                return;
+            }
+
             if (!bgRemovalReady || typeof imglyRemoveBackground === 'undefined') {
-                alert('Background removal is unavailable. Please try again later or check your internet connection.');
+                alert('Background removal service is unavailable. Please check your connection and try again.');
                 return;
             }
 
@@ -607,26 +444,23 @@
                     });
                 }
 
-                // Validate image size
-                const img = await loadImage(blob);
-                if (img.width * img.height > 10000000) { // 10MP limit
-                    throw new Error('Image is too large (max 10 megapixels). Please use a smaller image.');
-                }
-
                 const resultBlob = await imglyRemoveBackground(blob, {
                     publicPath: 'https://unpkg.com/@imgly/background-removal@1/dist/',
-                    debug: false,
-                    progress: (progress) => {
-                        console.log('Background removal progress:', progress);
-                    }
+                    debug: false
                 });
+
+                if (!resultBlob) {
+                    throw new Error('No result returned from background removal');
+                }
+
                 const resultImg = await loadImage(resultBlob);
                 canvas.width = Math.min(resultImg.width, 400);
                 canvas.height = resultImg.width > 400 ? (resultImg.height * 400 / resultImg.width) : resultImg.height;
                 ctx.drawImage(resultImg, 0, 0, canvas.width, canvas.height);
                 document.getElementById('downloadBg').style.display = 'inline-block';
             } catch (err) {
-                alert('Failed to remove background: ' + err.message || 'An unknown error occurred.');
+                console.error('Background removal error:', err);
+                alert('Unable to detect the background. Please try a different image or ensure a clear background is present.');
             } finally {
                 loading.style.display = 'none';
             }
@@ -699,14 +533,14 @@
                     link.download = 'converted.tiff';
                 } else if (outputFormat === 'avif') {
                     const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-                    const image = await Image.load(png);
+                    const image = await Image.load(pngBlob);
                     const avifBuffer = await image.toBuffer('avif');
                     const blob = new Blob([avifBuffer], { type: 'image/avif' });
                     link.href = URL.createObjectURL(blob);
                     link.download = 'converted.avif';
                 } else {
-                    link.href = canvas.toDataURL('image/${outputFormat}', outputFormat === 'jpeg' ? 0.9 : 1.0);
-                    link.download = 'converted.${outputFormat';
+                    link.href = canvas.toDataURL(`image/${outputFormat}`, outputFormat === 'jpeg' ? 0.9 : 1.0);
+                    link.download = `converted.${outputFormat}`;
                 }
                 link.click();
             } catch (err) {
