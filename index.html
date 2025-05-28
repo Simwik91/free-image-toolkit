@@ -17,7 +17,7 @@
      crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/image-js@0.35.0/dist/image.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/libheif-js@1.17.0/libheif.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.0.2/dist/index.min.js"></script>
+    <script src="https://unpkg.com/@imgly/background-removal@1/dist/index.umd.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -277,6 +277,7 @@
                     document.getElementById('bgUpload').value = '';
                     document.getElementById('downloadBg').style.display = 'none';
                     document.getElementById('resetBg').style.display = 'none';
+                    document.getElementById('loading').style.display = 'none';
                     originalBgImage = null;
                 } else if (currentTabId === 'convert') {
                     const canvas = document.getElementById('convertCanvas');
@@ -323,7 +324,7 @@
                     fileInput.files = files;
                     fileInput.dispatchEvent(new Event('change'));
                 } else {
-                    alert('Please drop a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC, AVIF).');
+                    alert('Please drop a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).');
                 }
             });
         }
@@ -343,8 +344,11 @@
                             const libheif = window.libheif;
                             const heifBuffer = new Uint8Array(e.target.result);
                             const decoder = new libheif.HeifDecoder();
-                            const data = decoder.decode(heifBuffer)[0];
-                            const imgData = data.display(data, { quality: 1 });
+                            const data = decoder.decode(heifBuffer);
+                            if (!data || data.length === 0) {
+                                throw new Error('Invalid HEIC file');
+                            }
+                            const imgData = data[0].display(data[0], { quality: 1 });
                             const blob = await new Promise(resolveBlob => {
                                 imgData.toBlob(resolveBlob, 'image/png');
                             });
@@ -353,9 +357,10 @@
                             img.onerror = () => reject(new Error('Failed to load HEIC image'));
                             img.src = URL.createObjectURL(blob);
                         } catch (err) {
-                            reject(err);
+                            reject(new Error('Error processing HEIC image: ' + err.message));
                         }
                     };
+                    reader.onerror = () => reject(new Error('Failed to read HEIC file'));
                     reader.readAsArrayBuffer(file);
                 } else if (fileType === 'image/tiff' || fileType === 'image/tif') {
                     const reader = new FileReader();
@@ -371,9 +376,10 @@
                             img.onerror = () => reject(new Error('Failed to load TIFF image'));
                             img.src = canvas.toDataURL('image/png');
                         } catch (err) {
-                            reject(err);
+                            reject(new Error('Error processing TIFF image: ' + err.message));
                         }
                     };
+                    reader.onerror = () => reject(new Error('Failed to read TIFF file'));
                     reader.readAsArrayBuffer(file);
                 } else {
                     const reader = new FileReader();
@@ -383,6 +389,7 @@
                         img.onerror = () => reject(new Error('Failed to load image'));
                         img.src = e.target.result;
                     };
+                    reader.onerror = () => reject(new Error('Failed to read image file'));
                     reader.readAsDataURL(file);
                 }
             });
@@ -527,6 +534,26 @@
         });
 
         // ===== BACKGROUND REMOVER =====
+        // Initialize Background Removal Library
+        let bgRemovalReady = false;
+        async function initializeBgRemoval() {
+            try {
+                if (typeof imglyRemoveBackground === 'undefined') {
+                    throw new Error('Background removal library failed to load');
+                }
+                // Preload WebAssembly module
+                await imglyRemoveBackground({}); // Warm up the model
+                bgRemovalReady = true;
+                console.log('Background removal library initialized');
+            } catch (err) {
+                console.error('Failed to initialize background removal:', err);
+                bgRemovalReady = false;
+            }
+        }
+
+        // Load library on page load
+        initializeBgRemoval();
+
         document.getElementById('bgUpload').addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (!file || !file.type.match(/image\/(png|jpeg|webp|bmp|gif|tiff|tif|heic|heif)/)) {
@@ -552,35 +579,56 @@
             const canvas = document.getElementById('bgCanvas');
             const ctx = canvas.getContext('2d');
             const fileInput = document.getElementById('bgUpload');
+            const loading = document.getElementById('loading');
 
             if (!fileInput.files[0]) {
                 alert("Upload an image first!");
                 return;
             }
 
-            document.getElementById('loading').style.display = 'block';
+            if (!bgRemovalReady || typeof imglyRemoveBackground === 'undefined') {
+                alert('Background removal is unavailable. Please try again later or check your internet connection.');
+                return;
+            }
+
+            loading.style.display = 'block';
             try {
                 const file = fileInput.files[0];
-                const blob = file.type.match(/image\/(heic|heif|tiff|tif)/) ? await new Promise(resolve => {
-                    loadImage(file).then(img => {
-                        const tempCanvas = document.createElement('canvas');
-                        tempCanvas.width = img.width;
-                        tempCanvas.height = img.height;
-                        tempCanvas.getContext('2d').drawImage(img, 0, 0);
-                        tempCanvas.toBlob(resolve, 'image/png');
+                let blob = file;
+                if (file.type.match(/image\/(heic|heif|tiff|tif)/)) {
+                    blob = await new Promise(resolve => {
+                        loadImage(file).then(img => {
+                            const tempCanvas = document.createElement('canvas');
+                            tempCanvas.width = img.width;
+                            tempCanvas.height = img.height;
+                            tempCanvas.getContext('2d').drawImage(img, 0, 0);
+                            tempCanvas.toBlob(resolve, 'image/png');
+                        });
                     });
-                }) : file;
+                }
 
-                const resultBlob = await imglyRemoveBackground(blob);
-                const img = await loadImage(resultBlob);
-                canvas.width = Math.min(img.width, 400);
-                canvas.height = img.width > 400 ? (img.height * 400 / img.width) : img.height;
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                // Validate image size
+                const img = await loadImage(blob);
+                if (img.width * img.height > 10000000) { // 10MP limit
+                    throw new Error('Image is too large (max 10 megapixels). Please use a smaller image.');
+                }
+
+                const resultBlob = await imglyRemoveBackground(blob, {
+                    publicPath: 'https://unpkg.com/@imgly/background-removal@1/dist/',
+                    debug: false,
+                    progress: (progress) => {
+                        console.log('Background removal progress:', progress);
+                    }
+                });
+                const resultImg = await loadImage(resultBlob);
+                canvas.width = Math.min(resultImg.width, 400);
+                canvas.height = resultImg.width > 400 ? (resultImg.height * 400 / resultImg.width) : resultImg.height;
+                ctx.drawImage(resultImg, 0, 0, canvas.width, canvas.height);
                 document.getElementById('downloadBg').style.display = 'inline-block';
             } catch (err) {
-                alert('Error removing background: ' + err.message);
+                alert('Failed to remove background: ' + err.message || 'An unknown error occurred.');
             } finally {
-                document.getElementById('loading').style.display = 'none';
+                loading.style.display = 'none';
             }
         });
 
@@ -589,7 +637,7 @@
                 const canvas = document.getElementById('bgCanvas');
                 const ctx = canvas.getContext('2d');
                 canvas.width = Math.min(originalBgImage.width, 400);
-                canvas.height = originalBgImage.width > 400 ? (originalBgImage.height * 400 / originalBgImage.width) : originalBgImage.height;
+                canvas.height = originalBgImage.width > 400 ? originalBgImage.height : (originalBgImage.height * 400 / originalBgImage.width);
                 ctx.drawImage(originalBgImage, 0, 0, canvas.width, canvas.height);
                 document.getElementById('downloadBg').style.display = 'none';
             }
@@ -598,7 +646,7 @@
         // ===== IMAGE CONVERTER =====
         document.getElementById('convertUpload').addEventListener('change', async function(e) {
             const file = e.target.files[0];
-            if (!file || !file.type.match(/image\/(png|jpeg|webp|bmp|gif|tiff|tif|heic|heif)/)) {
+            if (!file || !file.type.match(/image\/(png|jpeg|jpg|webp|bmp|gif|tiff|tif|heic|heif)/)) {
                 alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).');
                 return;
             }
@@ -621,7 +669,7 @@
             const loading = document.getElementById('convertLoading');
 
             if (!fileInput.files[0]) {
-                alert("Upload an image first!");
+                alert('Upload an image first!');
                 return;
             }
 
@@ -641,24 +689,24 @@
                     const heifBuffer = await image.toBuffer('heic');
                     const blob = new Blob([heifBuffer], { type: 'image/heic' });
                     link.href = URL.createObjectURL(blob);
-                    link.download = `converted.heic`;
+                    link.download = 'converted.heic';
                 } else if (outputFormat === 'tiff') {
                     const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
                     const image = await Image.load(pngBlob);
                     const tiffBuffer = await image.toBuffer('tiff');
                     const blob = new Blob([tiffBuffer], { type: 'image/tiff' });
                     link.href = URL.createObjectURL(blob);
-                    link.download = `converted.tiff`;
+                    link.download = 'converted.tiff';
                 } else if (outputFormat === 'avif') {
                     const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-                    const image = await Image.load(pngBlob);
+                    const image = await Image.load(png);
                     const avifBuffer = await image.toBuffer('avif');
                     const blob = new Blob([avifBuffer], { type: 'image/avif' });
                     link.href = URL.createObjectURL(blob);
-                    link.download = `converted.avif`;
+                    link.download = 'converted.avif';
                 } else {
-                    link.href = canvas.toDataURL(`image/${outputFormat}`, outputFormat === 'jpeg' ? 0.9 : 1.0);
-                    link.download = `converted.${outputFormat}`;
+                    link.href = canvas.toDataURL('image/${outputFormat}', outputFormat === 'jpeg' ? 0.9 : 1.0);
+                    link.download = 'converted.${outputFormat';
                 }
                 link.click();
             } catch (err) {
