@@ -334,6 +334,118 @@
             });
         }
 
+        // ===== CROP FUNCTIONALITY =====
+        document.getElementById('cropUpload').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file || !file.type.match(/image\/(png|jpeg|webp|bmp|gif|tiff|tif|heic|heif)/)) {
+                alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).');
+                return;
+            }
+            try {
+                const img = await loadImage(file);
+                originalCropImage = img;
+                const canvas = document.getElementById('cropCanvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = Math.min(img.width, 400);
+                canvas.height = img.width > 400 ? (img.height * 400 / img.width) : img.height;
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                document.getElementById('downloadCrop').style.display = 'none';
+                document.getElementById('resetCrop').style.display = 'none';
+            } catch (err) {
+                alert('Error loading image: ' + err.message);
+            }
+        });
+
+        const cropCanvas = document.getElementById('cropCanvas');
+        cropCanvas.addEventListener('mousedown', startDrawing);
+        cropCanvas.addEventListener('mousemove', drawCropRect);
+        cropCanvas.addEventListener('mouseup', stopDrawing);
+
+        function startDrawing(e) {
+            if (document.getElementById('cropMode').value !== 'free') return;
+            isDrawing = true;
+            const rect = cropCanvas.getBoundingClientRect();
+            cropStart = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+        }
+
+        function drawCropRect(e) {
+            if (!isDrawing) return;
+            const rect = cropCanvas.getBoundingClientRect();
+            const currentX = e.clientX - rect.left;
+            const currentY = e.clientY - rect.top;
+            cropRect = {
+                x: Math.min(cropStart.x, currentX),
+                y: Math.min(cropStart.y, currentY),
+                width: Math.abs(currentX - cropStart.x),
+                height: Math.abs(currentY - cropStart.y),
+            };
+            const ctx = cropCanvas.getContext('2d');
+            ctx.drawImage(originalCropImage, 0, 0, cropCanvas.width, cropCanvas.height);
+            ctx.strokeStyle = 'red';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(cropRect.x, cropRect.y, cropRect.width, cropRect.height);
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        document.getElementById('cropBtn').addEventListener('click', () => {
+            const mode = document.getElementById('cropMode').value;
+            if (mode === 'free' && !cropRect) {
+                alert('Please draw a crop area first.');
+                return;
+            }
+            if (mode === 'pixel' && (!document.getElementById('cropWidth').value || !document.getElementById('cropHeight').value)) {
+                alert('Please enter width and height for pixel-based cropping.');
+                return;
+            }
+            const canvas = document.getElementById('cropCanvas');
+            const ctx = canvas.getContext('2d');
+            let sx, sy, sWidth, sHeight;
+            if (mode === 'free') {
+                const scale = originalCropImage.width / canvas.width;
+                sx = cropRect.x * scale;
+                sy = cropRect.y * scale;
+                sWidth = cropRect.width * scale;
+                sHeight = cropRect.height * scale;
+            } else {
+                sWidth = parseInt(document.getElementById('cropWidth').value);
+                sHeight = parseInt(document.getElementById('cropHeight').value);
+                sx = 0;
+                sy = 0;
+                if (sWidth > originalCropImage.width || sHeight > originalCropImage.height) {
+                    alert('Crop dimensions exceed image size.');
+                    return;
+                }
+            }
+            const croppedCanvas = document.createElement('canvas');
+            croppedCanvas.width = sWidth;
+            croppedCanvas.height = sHeight;
+            const croppedCtx = croppedCanvas.getContext('2d');
+            croppedCtx.drawImage(originalCropImage, sx, sy, sWidth, sHeight, 0, 0, sWidth, sHeight);
+            canvas.width = Math.min(sWidth, 400);
+            canvas.height = sWidth > 400 ? (sHeight * 400 / sWidth) : sHeight;
+            ctx.drawImage(croppedCanvas, 0, 0, canvas.width, canvas.height);
+            currentImage = croppedCanvas;
+            document.getElementById('downloadCrop').style.display = 'inline-block';
+            document.getElementById('resetCrop').style.display = 'inline-block';
+        });
+
+        document.getElementById('resetCrop').addEventListener('click', () => {
+            if (originalCropImage) {
+                const canvas = document.getElementById('cropCanvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = Math.min(originalCropImage.width, 400);
+                canvas.height = originalCropImage.width > 400 ? (originalCropImage.height * 400 / originalCropImage.width) : originalCropImage.height;
+                ctx.drawImage(originalCropImage, 0, 0, canvas.width, canvas.height);
+                currentImage = originalCropImage;
+                document.getElementById('downloadCrop').style.display = 'none';
+                document.getElementById('resetCrop').style.display = 'none';
+                cropRect = null;
+            }
+        });
+
         // ===== BACKGROUND REMOVER INITIALIZATION =====
         async function loadScriptWithRetry(url, retries = 3, delay = 1000) {
             for (let i = 0; i < retries; i++) {
@@ -343,18 +455,11 @@
                     script.async = true;
                     document.head.appendChild(script);
                     await new Promise((resolve, reject) => {
-                        script.onload = () => {
-                            console.log('Script loaded successfully.');
-                            resolve();
-                        };
-                        script.onerror = () => {
-                            console.error('Script loading failed.');
-                            reject(new Error('Failed to load background removal library'));
-                        };
+                        script.onload = () => resolve();
+                        script.onerror = () => reject(new Error('Failed to load background removal library'));
                     });
                     return;
                 } catch (err) {
-                    console.warn(`Attempt ${i + 1} to load script failed. Retrying...`);
                     await new Promise(resolve => setTimeout(resolve, delay));
                 }
             }
@@ -363,25 +468,17 @@
 
         async function initializeBgRemoval() {
             try {
-                console.log('Checking if imglyRemoveBackground is defined...');
                 if (typeof imglyRemoveBackground === 'undefined') {
-                    console.log('imglyRemoveBackground is undefined. Loading script...');
                     await loadScriptWithRetry('https://unpkg.com/@imgly/background-removal@1/dist/index.umd.js');
-                } else {
-                    console.log('imglyRemoveBackground is already defined.');
                 }
-                console.log('Warming up the library...');
                 await imglyRemoveBackground({});
-                console.log('Library warmed up successfully.');
                 bgRemovalReady = true;
-                console.log('Background removal library ready');
             } catch (err) {
                 console.error('Background removal initialization failed:', err);
                 bgRemovalReady = false;
             }
         }
 
-        // Initialize on page load
         initializeBgRemoval();
 
         // ===== BACKGROUND REMOVER =====
@@ -417,7 +514,6 @@
                 return;
             }
 
-            // Check for WebAssembly support
             if (typeof WebAssembly === 'undefined') {
                 alert('Your browser does not support WebAssembly, which is required for background removal. Please use a modern browser.');
                 return;
