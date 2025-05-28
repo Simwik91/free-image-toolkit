@@ -124,7 +124,7 @@
     <!-- Resize Tool -->
     <div id="resize" class="tool-section">
         <h2>Image Resizer</h2>
-        <p><i>Resize your image to the specified dimensions while maintaining the aspect ratio.</i></p>
+        <p><i>Resize your image to the specified dimensions. The image will be stretched or squashed to fit without padding.</i></p>
         <div class="drag-drop-area" id="resizeDragArea">Drag your picture here or click to browse</div>
         <input type="file" id="resizeUpload" accept="image/*,.heic,.heif,.tiff,.tif" style="display: none;">
         <div class="resize-controls">
@@ -452,17 +452,12 @@
                 alert('Please enter valid width and height.');
                 return;
             }
-            const img = originalResizeImage;
-            const s = Math.min(tw / img.width, th / img.height);
-            const sw = s * img.width;
-            const sh = s * img.height;
-            const offsetX = (tw - sw) / 2;
-            const offsetY = (th - sh) / 2;
             const canvas = document.createElement('canvas');
             canvas.width = tw;
             canvas.height = th;
             const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, img.width, img.height, offsetX, offsetY, sw, sh);
+            // Explicitly stretch/squash the image to fit the new dimensions
+            ctx.drawImage(originalResizeImage, 0, 0, originalResizeImage.width, originalResizeImage.height, 0, 0, tw, th);
             const displayCanvas = document.getElementById('resizeCanvas');
             displayCanvas.width = Math.min(tw, 400);
             displayCanvas.height = tw > 400 ? (th * 400 / tw) : th;
