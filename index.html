@@ -568,4 +568,126 @@
                         tempCanvas.width = img.width;
                         tempCanvas.height = img.height;
                         tempCanvas.getContext('2d').drawImage(img, 0, 0);
-                        tempCanvas.toBlob(resolve
+                        tempCanvas.toBlob(resolve, 'image/png');
+                    });
+                }) : file;
+
+                const resultBlob = await imglyRemoveBackground(blob);
+                const img = await loadImage(resultBlob);
+                canvas.width = Math.min(img.width, 400);
+                canvas.height = img.width > 400 ? (img.height * 400 / img.width) : img.height;
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                document.getElementById('downloadBg').style.display = 'inline-block';
+            } catch (err) {
+                alert('Error removing background: ' + err.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        });
+
+        document.getElementById('resetBg').addEventListener('click', () => {
+            if (originalBgImage) {
+                const canvas = document.getElementById('bgCanvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = Math.min(originalBgImage.width, 400);
+                canvas.height = originalBgImage.width > 400 ? (originalBgImage.height * 400 / originalBgImage.width) : originalBgImage.height;
+                ctx.drawImage(originalBgImage, 0, 0, canvas.width, canvas.height);
+                document.getElementById('downloadBg').style.display = 'none';
+            }
+        });
+
+        // ===== IMAGE CONVERTER =====
+        document.getElementById('convertUpload').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file || !file.type.match(/image\/(png|jpeg|webp|bmp|gif|tiff|tif|heic|heif)/)) {
+                alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).');
+                return;
+            }
+            try {
+                const img = await loadImage(file);
+                originalConvertImage = img;
+                const canvas = document.getElementById('convertCanvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = Math.min(img.width, 400);
+                canvas.height = img.width > 400 ? (img.height * 400 / img.width) : img.height;
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                document.getElementById('downloadConvert').style.display = 'none';
+            } catch (err) {
+                alert('Error loading image: ' + err.message);
+            }
+        });
+
+        document.getElementById('convertBtn').addEventListener('click', async () => {
+            const fileInput = document.getElementById('convertUpload');
+            const outputFormat = document.getElementById('outputFormat').value;
+
+            if (!fileInput.files[0]) {
+                alert("Upload an image first!");
+                return;
+            }
+
+            try {
+                const img = await loadImage(fileInput.files[0]);
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+
+                if (outputFormat === 'heic') {
+                    const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                    const image = await Image.load(pngBlob);
+                    const heifBuffer = await image.toBuffer('heic');
+                    const blob = new Blob([heifBuffer], { type: 'image/heic' });
+                    const link = document.getElementById('downloadConvert');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = `converted.heic`;
+                    link.style.display = 'inline-block';
+                    link.click();
+                } else if (outputFormat === 'tiff') {
+                    const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                    const image = await Image.load(pngBlob);
+                    const tiffBuffer = await image.toBuffer('tiff');
+                    const blob = new Blob([tiffBuffer], { type: 'image/tiff' });
+                    const link = document.getElementById('downloadConvert');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = `converted.tiff`;
+                    link.style.display = 'inline-block';
+                    link.click();
+                } else if (outputFormat === 'avif') {
+                    const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                    const image = await Image.load(pngBlob);
+                    const avifBuffer = await image.toBuffer('avif');
+                    const blob = new Blob([avifBuffer], { type: 'image/avif' });
+                    const link = document.getElementById('downloadConvert');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = `converted.avif`;
+                    link.style.display = 'inline-block';
+                    link.click();
+                } else {
+                    const link = document.getElementById('downloadConvert');
+                    link.href = canvas.toDataURL(`image/${outputFormat}`, outputFormat === 'jpeg' ? 0.9 : 1.0);
+                    link.download = `converted.${outputFormat}`;
+                    link.style.display = 'inline-block';
+                    link.click();
+                }
+            } catch (err) {
+                alert('Error converting image: ' + err.message);
+            }
+        });
+
+        // ===== DOWNLOAD FUNCTIONS =====
+        document.getElementById('downloadCrop').addEventListener('click', () => downloadCanvas('cropCanvas', 'cropped.png'));
+        document.getElementById('downloadBg').addEventListener('click', () => downloadCanvas('bgCanvas', 'no-bg.png'));
+        document.getElementById('downloadConvert').addEventListener('click', () => {}); // Handled in convertBtn
+
+        function downloadCanvas(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
+</body>
+</html>
