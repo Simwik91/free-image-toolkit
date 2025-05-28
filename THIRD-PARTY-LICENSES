@@ -1,0 +1,13 @@
+Third-Party Licenses
+
+1. TensorFlow.js
+   - License: Apache License 2.0
+   - Copyright: Copyright 2018 Google LLC
+   - Source: https://github.com/tensorflow/tfjs
+   - License Text: [Full Apache 2.0 text here, available at https://www.apache.org/licenses/LICENSE-2.0]
+
+2. BodyPix
+   - License: Apache License 2.0
+   - Copyright: Copyright 2019 Google LLC
+   - Source: https://github.com/tensorflow/models/tree/master/body-pix
+   - License Text: [Full Apache 2.0 text here, available at https://www.apache.org/licenses/LICENSE-2.0]
