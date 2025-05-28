@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Crop, remove backgrounds, and convert images to PNG, JPEG, WEBP, or BMP. Free, fast, no signup.">
+    <title>Free Picture Fixer</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-C4SSJKXG4Z"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-C4SSJKXG4Z');
+    </script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4041775163958551" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.18.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.0.0/dist/body-pix.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            text-align: center;
+            padding: 2em;
+            background: #f4f4f4;
+            color: #333;
+        }
+        h1 {
+            font-size: 2em;
+            margin-bottom: 0.2em;
+        }
+        h2 {
+            font-size: 1.5em;
+            margin-top: 2em;
+            margin-bottom: 0.5em;
+        }
+        p {
+            margin-top: 0;
+            margin-bottom: 2em;
+            color: #666;
+        }
+        input, select, button {
+            margin: 0.5em auto;
+            padding: 0.75em;
+            width: 90%;
+            max-width: 400px;
+            font-size: 1em;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007acc;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #005fa3;
+        }
+        .tab-buttons {
+            margin-bottom: 2em;
+        }
+        .tab-buttons button {
+            width: auto;
+            min-width: 120px;
+            margin: 0 0.5em;
+            display: inline-block;
+            padding: 0.75em 1.5em;
+        }
+        .tab-buttons button.active-tab {
+            background-color: #005fa3;
+        }
+        canvas {
+            margin: 1em auto;
+            display: block;
+            max-width: 400px;
+            border: 1px solid #ccc;
+        }
+        #loading {
+            display: none;
+            color: #007acc;
+            font-weight: bold;
+            margin: 1em auto;
+        }
+        .crop-controls {
+            margin-bottom: 1em;
+        }
+        .crop-controls input, .crop-controls select {
+            width: 45%;
+            max-width: 180px;
+            display: inline-block;
+        }
+        .tool-section {
+            display: none;
+        }
+        .tool-section.active {
+            display: block;
+        }
+        .drag-drop-area {
+            width: 90%;
+            max-width: 400px;
+            margin: 1em auto;
+            padding: 2em;
+            border: 2px dashed #ccc;
+            border-radius: 6px;
+            background: #fff;
+            color: #666;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .drag-drop-area.drag-over {
+            background: #e6f0fa;
+        }
+        hr {
+            margin: 2em auto;
+            width: 80%;
+            border: 0;
+            border-top: 1px solid #ddd;
+        }
+        footer {
+            margin-top: 4em;
+            font-size: 0.85em;
+            color: #888;
+        }
+        .sister-site-btn {
+            display: block;
+            background: #ff6600;
+            color: white;
+            padding: 0.75em 1.5em;
+            margin: 1em auto 2em auto;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            max-width: 400px;
+            width: 90%;
+            transition: background-color 0.3s ease;
+            text-align: center;
+        }
+        .sister-site-btn:hover {
+            background-color: #cc5200;
+        }
+    </style>
+</head>
+<body>
+    <h1>Free Picture Fixer</h1>
+    <p>Crop, remove backgrounds, and convert images to PNG, JPEG, WEBP, or BMP</p>
+
+    <!-- Tab Navigation -->
+    <div class="tab-buttons">
+        <button class="active-tab" onclick="switchTab('crop')">Crop</button>
+        <button onclick="switchTab('background')">Remove BG</button>
+        <button onclick="switchTab('convert')">Convert</button>
+    </div>
+
+    <!-- Crop Tool -->
+    <div id="crop" class="tool-section active">
+        <h2>Image Cropper</h2>
+        <p><i>Choose between pixel-based cropping for precise dimensions or free-draw to select a custom area.</i></p>
+        <div class="drag-drop-area" id="cropDragArea">Drag your picture here or click to browse</div>
+        <input type="file" id="cropUpload" accept="image/*" style="display: none;">
+        <div class="crop-controls">
+            <select id="cropMode">
+                <option value="free">Free Draw</option>
+                <option value="pixel" selected>Pixel-Based</option>
+            </select>
+            <div id="pixelCropInputs">
+                <input type="number" id="cropWidth" min="1" placeholder="Width (px)">
+                <input type="number" id="cropHeight" min="1" placeholder="Height (px)">
+            </div>
+        </div>
+        <canvas id="cropCanvas"></canvas>
+        <button id="cropBtn">Crop Image</button>
+        <button id="downloadCrop" style="display: none;">Download</button>
+    </div>
+
+    <!-- Background Remover -->
+    <div id="background" class="tool-section">
+        <h2>Background Remover</h2>
+        <p><i>Works best with portraits. Processing may take 5-10 seconds.</i></p>
+        <div class="drag-drop-area" id="bgDragArea">Drag your picture here or click to browse</div>
+        <input type="file" id="bgUpload" accept="image/*" style="display: none;">
+        <div id="loading">Processing... (Please wait)</div>
+        <canvas id="bgCanvas"></canvas>
+        <button id="removeBgBtn">Remove Background</button>
+        <button id="downloadBg" style="display: none;">Download (PNG)</button>
+    </div>
+
+    <!-- Image Converter -->
+    <div id="convert" class="tool-section">
+        <h2>Image Converter</h2>
+        <div class="drag-drop-area" id="convertDragArea">Drag your picture here or click to browse</div>
+        <input type="file" id="convertUpload" accept="image/*" style="display: none;">
+        <select id="outputFormat">
+            <option value="png">PNG</option>
+            <option value="jpeg">JPEG</option>
+            <option value="webp">WEBP</option>
+            <option value="bmp">BMP</option>
+        </select>
+        <button id="convertBtn">Convert</button>
+        <button id="downloadConvert" style="display: none;">Download</button>
+    </div>
+
+    <hr>
+
+    <a href="https://www.free-barcode-maker.com" target="_blank" rel="noopener noreferrer" class="sister-site-btn">
+        Try our Free Barcode Generator!
+    </a>
+
+    <footer>
+        Free Picture Fixer. Made with ❤️
+    </footer>
+
+    <!-- Main JavaScript -->
+    <script>
+        // ===== TAB SWITCHING =====
+        function switchTab(tabName) {
+            document.querySelectorAll('.tool-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-buttons button').forEach(btn => {
+                btn.classList.remove('active-tab');
+            });
+            document.getElementById(tabName).classList.add('active');
+            document.querySelector(`button[onclick="switchTab('${tabName}')"]`).classList.add('active-tab');
+        }
+
+        // ===== DRAG AND DROP SETUP =====
+        function setupDragDrop(dragAreaId, inputId) {
+            const dragArea = document.getElementById(dragAreaId);
+            const fileInput = document.getElementById(inputId);
+
+            dragArea.addEventListener('click', () => fileInput.click());
+            dragArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dragArea.classList.add('drag-over');
+            });
+            dragArea.addEventListener('dragenter', (e) => {
+                e.preventDefault();
+                dragArea.classList.add('drag-over');
+            });
+            dragArea.addEventListener('dragleave', () => {
+                dragArea.classList.remove('drag-over');
+            });
+            dragArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dragArea.classList.remove('drag-over');
+                const files = e.dataTransfer.files;
+                if (files.length > 0 && files[0].type.startsWith('image/')) {
+                    fileInput.files = files;
+                    fileInput.dispatchEvent(new Event('change'));
+                } else {
+                    alert('Please drop a valid image file.');
+                }
+            });
+        }
+
+        setupDragDrop('cropDragArea', 'cropUpload');
+        setupDragDrop('bgDragArea', 'bgUpload');
+        setupDragDrop('convertDragArea', 'convertUpload');
+
+        // ===== CROP TOOL =====
+        let cropStart = null;
+        let cropRect = null;
+        let currentImage = null;
+        let isDrawing = false;
+
+        // Initialize pixel-based as default
+        document.getElementById('pixelCropInputs').style.display = 'block';
+
+        document.getElementById('cropMode').addEventListener('change', (e) => {
+            document.getElementById('pixelCropInputs').style.display = e.target.value === 'pixel' ? 'block' : 'none';
+            const canvas = document.getElementById('cropCanvas');
+            const ctx = canvas.getContext('2d');
+            if (currentImage) {
+                canvas.width = Math.min(currentImage.width, 400);
+                canvas.height = currentImage.width > 400 ? (currentImage.height * 400 / currentImage.width) : currentImage.height;
+                ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
+            }
+            cropRect = null;
+        });
+
+        document.getElementById('cropUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file || !file.type.startsWith('image/')) {
+                alert('Please select a valid image file.');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                currentImage = new Image();
+                currentImage.onload = function() {
+                    const canvas = document.getElementById('cropCanvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = Math.min(currentImage.width, 400);
+                    canvas.height = currentImage.width > 400 ? (currentImage.height * 400 / currentImage.width) : currentImage.height;
+                    ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
+                    cropRect = null;
+                    document.getElementById('downloadCrop').style.display = 'none';
+                };
+                currentImage.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        document.getElementById('cropCanvas').addEventListener('mousedown', (e) => {
+            if (document.getElementById('cropMode').value !== 'free') return;
+            const canvas = document.getElementById('cropCanvas');
+            const rect = canvas.getBoundingClientRect();
+            cropStart = {
+                x: (e.clientX - rect.left) * (canvas.width / rect.width),
+                y: (e.clientY - rect.top) * (canvas.height / rect.height)
+            };
+            isDrawing = true;
+        });
+
+        document.getElementById('cropCanvas').addEventListener('mousemove', (e) => {
+            if (!isDrawing || document.getElementById('cropMode').value !== 'free') return;
+            const canvas = document.getElementById('cropCanvas');
+            const ctx = canvas.getContext('2d');
+            const rect = canvas.getBoundingClientRect();
+            const currentX = (e.clientX - rect.left) * (canvas.width / rect.width);
+            const currentY = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = 'red';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(cropStart.x, cropStart.y, currentX - cropStart.x, currentY - cropStart.y);
+            cropRect = {
+                x: Math.min(cropStart.x, currentX),
+                y: Math.min(cropStart.y, currentY),
+                width: Math.abs(currentX - cropStart.x),
+                height: Math.abs(currentY - cropStart.y)
+            };
+        });
+
+        document.getElementById('cropCanvas').addEventListener('mouseup', () => {
+            isDrawing = false;
+        });
+
+        document.getElementById('cropBtn').addEventListener('click', () => {
+            const canvas = document.getElementById('cropCanvas');
+            const ctx = canvas.getContext('2d');
+            const cropMode = document.getElementById('cropMode').value;
+
+            if (!currentImage) {
+                alert("Upload an image first!");
+                return;
+            }
+
+            let newCanvas = document.createElement('canvas');
+            let newCtx = newCanvas.getContext('2d');
+
+            if (cropMode === 'free' && cropRect) {
+                newCanvas.width = cropRect.width;
+                newCanvas.height = cropRect.height;
+                newCtx.drawImage(currentImage, cropRect.x, cropRect.y, cropRect.width, cropRect.height, 0, 0, cropRect.width, cropRect.height);
+            } else if (cropMode === 'pixel') {
+                let width = parseInt(document.getElementById('cropWidth').value);
+                let height = parseInt(document.getElementById('cropHeight').value);
+
+                if (!width || !height || width <= 0 || height <= 0) {
+                    alert("Please enter valid width and height values.");
+                    return;
+                }
+
+                // Cap dimensions to image size
+                width = Math.min(width, currentImage.width);
+                height = Math.min(height, currentImage.height);
+
+                // Maintain aspect ratio by scaling
+                const aspectRatio = currentImage.width / currentImage.height;
+                if (width / height > aspectRatio) {
+                    width = height * aspectRatio;
+                } else {
+                    height = width / aspectRatio;
+                }
+
+                newCanvas.width = width;
+                newCanvas.height = height;
+                newCtx.drawImage(currentImage, 0, 0, currentImage.width, currentImage.height, 0, 0, width, height);
+            } else {
+                alert("Select a crop area or enter pixel dimensions!");
+                return;
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            canvas.width = Math.min(newCanvas.width, 400);
+            canvas.height = newCanvas.width > 400 ? (newCanvas.height * 400 / newCanvas.width) : newCanvas.height;
+            ctx.drawImage(newCanvas, 0, 0, canvas.width, canvas.height);
+            document.getElementById('downloadCrop').style.display = 'inline-block';
+        });
+
+        // ===== BACKGROUND REMOVER =====
+        let bodyPixNet;
+        (async function loadModel() {
+            document.getElementById('loading').style.display = 'block';
+            bodyPixNet = await bodyPix.load({
+                architecture: 'MobileNetV1',
+                outputStride: 16,
+                multiplier: 0.75,
+                quantBytes: 2
+            });
+            document.getElementById('loading').style.display = 'none';
+        })();
+
+        document.getElementById('bgUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file || !file.type.startsWith('image/')) {
+                alert('Please select a valid image file.');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.getElementById('bgCanvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = Math.min(img.width, 400);
+                    canvas.height = img.width > 400 ? (img.height * 400 / img.width) : img.height;
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    document.getElementById('downloadBg').style.display = 'none';
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        document.getElementById('removeBgBtn').addEventListener('click', async () => {
+            const canvas = document.getElementById('bgCanvas');
+            const ctx = canvas.getContext('2d');
+            const fileInput = document.getElementById('bgUpload');
+
+            if (!fileInput.files[0]) {
+                alert("Upload an image first!");
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'block';
+            const image = await loadImage(fileInput.files[0]);
+            canvas.width = Math.min(image.width, 400);
+            canvas.height = image.width > 400 ? (image.height * 400 / image.width) : image.height;
+            ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+            const segmentation = await bodyPixNet.segmentPerson(canvas, {
+                flipHorizontal: false,
+                internalResolution: 'low',
+                segmentationThreshold: 0.7
+            });
+
+            const mask = bodyPix.toMask(segmentation);
+            ctx.putImageData(mask, 0, 0);
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+            ctx.globalCompositeOperation = 'source-over';
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('downloadBg').style.display = 'inline-block';
+        });
+
+        // ===== IMAGE CONVERTER =====
+        document.getElementById('convertUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file || !file.type.startsWith('image/')) {
+                alert('Please select a valid image file.');
+                return;
+            }
+            document.getElementById('downloadConvert').style.display = 'none';
+        });
+
+        document.getElementById('convertBtn').addEventListener('click', () => {
+            const fileInput = document.getElementById('convertUpload');
+            const outputFormat = document.getElementById('outputFormat').value;
+
+            if (!fileInput.files[0]) {
+                alert("Upload an image first!");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    const link = document.getElementById('downloadConvert');
+                    link.href = canvas.toDataURL(`image/${outputFormat}`, outputFormat === 'jpeg' ? 0.9 : 1.0);
+                    link.download = `converted.${outputFormat}`;
+                    link.style.display = 'inline-block';
+                    link.click();
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+        });
+
+        // ===== DOWNLOAD FUNCTIONS =====
+        document.getElementById('downloadCrop').addEventListener('click', () => downloadCanvas('cropCanvas', 'cropped.png'));
+        document.getElementById('downloadBg').addEventListener('click', () => downloadCanvas('bgCanvas', 'no-bg.png'));
+        document.getElementById('downloadConvert').addEventListener('click', () => {}); // Handled in convertBtn
+
+        function downloadCanvas(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // ===== HELPER FUNCTIONS =====
+        function loadImage(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => resolve(img);
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+    </script>
+</body>
+</html>
