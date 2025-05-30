@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Free Image Toolkit: Crop, resize, and convert images to PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC, or AVIF. Fast, free, no signup required.">
-    <meta name="keywords" content="image cropper, image resizer, image converter, free image toolkit, PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC, AVIF">
+    <meta name="description" content="Free Image Toolkit: Crop, resize, convert, apply filters, and remove backgrounds from images in PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC, or AVIF. Fast, free, no signup required.">
+    <meta name="keywords" content="image cropper, image resizer, image converter, image filters, remove background, free image toolkit, PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC, AVIF">
     <meta name="author" content="Free Image Toolkit">
     <meta name="robots" content="index, follow">
     <meta name="googlebot" content="index, follow">
-    <meta property="og:title" content="Free Image Toolkit - Crop, Resize, Convert Images">
-    <meta property="og:description" content="Easily crop, resize, and convert images to multiple formats including PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC, and AVIF. Free, fast, and no signup required.">
+    <meta property="og:title" content="Free Image Toolkit - Crop, Resize, Convert, Filter, Remove Background">
+    <meta property="og:description" content="Easily crop, resize, convert, apply filters, and remove backgrounds from images in multiple formats. Free, fast, and no signup required.">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="https://www.free-image-toolkit.com/og-image.jpg">
-    <meta property="og:url" content="https://www.free-image-toolkit.com">
+    <meta property="og:image" content="https://example.com/images/og-image.jpg">
+    <meta property="og:url" content="https://example.com">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Free Image Toolkit - Crop, Resize, Convert Images">
-    <meta name="twitter:description" content="Easily crop, resize, and convert images to multiple formats. Free, fast, and secure with no signup required.">
-    <meta name="twitter:image" content="https://www.free-image-toolkit.com/og-image.jpg">
-    <title>Free Image Toolkit - Crop, Resize, Convert Images</title>
+    <meta name="twitter:title" content="Free Image Toolkit - Crop, Resize, Convert, Filter, Remove Background">
+    <meta name="twitter:description" content="Easily crop, resize, convert, apply filters, and remove backgrounds from images. Free, fast, and secure with no signup required.">
+    <meta name="twitter:image" content="https://example.com/images/twitter-image.jpg">
+    <title>Free Image Toolkit - Crop, Resize, Convert, Filter, Remove Background</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="canonical" href="https://www.free-image-toolkit.com">
+    <link rel="canonical" href="https://example.com">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-C4SSJKXG4Z"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -30,16 +30,18 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4041775163958551" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/image-js@0.35.0/dist/image.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/libheif-js@1.17.0/libheif.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0-dev.20250114-228dd16893/dist/ort.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.6.0/dist/index.umd.js"></script>
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
         "@type": "WebSite",
         "name": "Free Image Toolkit",
-        "url": "https://www.free-image-toolkit.com",
-        "description": "Free tool to crop, resize, and convert images to PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC, or AVIF.",
+        "url": "https://example.com",
+        "description": "Free tool to crop, resize, convert, apply filters, and remove backgrounds from images in PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC, or AVIF.",
         "potentialAction": {
             "@type": "SearchAction",
-            "target": "https://www.free-image-toolkit.com/?q={search_term_string}",
+            "target": "https://example.com/?q={search_term_string}",
             "query-input": "required name=search_term_string"
         }
     }
@@ -84,7 +86,7 @@
         .tab-buttons button.active-tab { background-color: #005fa3; }
         canvas { margin: 1em auto; display: block; max-width: 400px; border: 1px solid #ccc; }
         .loading { display: none; color: #007acc; font-weight: bold; margin: 1em auto; }
-        .resize-controls input {
+        .resize-controls input, #blurOptions input {
             width: 45%;
             max-width: 180px;
             display: inline-block;
@@ -124,17 +126,25 @@
         .sister-tools-section { margin: 2em auto; }
         .sister-tools-section h2 { font-size: 1.8em; color: #333; }
         .sister-tools-section p { font-size: 1em; max-width: 600px; margin: 1em auto; }
+        #removebgOriginal, #removebgCanvas {
+            display: inline-block;
+            vertical-align: top;
+            max-width: 400px;
+            margin: 1em;
+        }
     </style>
 </head>
 <body>
     <h1>Free Image Toolkit</h1>
-    <p>Crop, resize, and convert images to PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC, or AVIF</p>
+    <p>Crop, resize, convert, apply filters, and remove backgrounds from images in PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC, or AVIF</p>
 
     <!-- Tab Navigation -->
     <div class="tab-buttons">
         <button class="active-tab" onclick="switchTab('crop')">Crop</button>
         <button onclick="switchTab('resize')">Resize</button>
         <button onclick="switchTab('convert')">Convert</button>
+        <button onclick="switchTab('filters')">Filters</button>
+        <button onclick="switchTab('removebg')">Remove Background</button>
     </div>
 
     <!-- Crop Tool -->
@@ -186,19 +196,54 @@
         <button id="convertBtn">Convert & Download</button>
     </div>
 
+    <!-- Filters Tool -->
+    <div id="filters" class="tool-section">
+        <h2>Image Filters</h2>
+        <p><i>Apply various filters to your image.</i></p>
+        <div class="drag-drop-area" id="filterDragArea">Drag your picture here or click to browse</div>
+        <input type="file" id="filterUpload" accept="image/*,.heic,.heif,.tiff,.tif" style="display: none;">
+        <canvas id="filterCanvas"></canvas>
+        <select id="filterType">
+            <option value="grayscale">Grayscale</option>
+            <option value="invert">Invert</option>
+            <option value="blur">Blur</option>
+            <option value="rotateLeft">Rotate Left 90°</option>
+            <option value="rotateRight">Rotate Right 90°</option>
+        </select>
+        <div id="blurOptions" style="display: none;">
+            <label for="blurRadius">Blur Radius:</label>
+            <input type="number" id="blurRadius" min="1" max="100" value="5">
+        </div>
+        <button id="applyFilterBtn">Apply Filter</button>
+        <button id="downloadFilter" style="display: none;">Download</button>
+    </div>
+
+    <!-- Remove Background Tool -->
+    <div id="removebg" class="tool-section">
+        <h2>Remove Background</h2>
+        <p><i>Remove the background from your image. Note: Results may vary depending on image content.</i></p>
+        <div class="drag-drop-area" id="removebgDragArea">Drag your picture here or click to browse</div>
+        <input type="file" id="removebgUpload" accept="image/*,.heic,.heif" style="display: none;">
+        <img id="removebgOriginal" style="display: none;" alt="Original Image" />
+        <canvas id="removebgCanvas"></canvas>
+        <div id="removebgLoading" class="loading">Processing... (Please wait)</div>
+        <button id="removebgBtn">Remove Background</button>
+        <button id="downloadRemovebg" style="display: none;">Download</button>
+    </div>
+
     <hr>
 
     <!-- Sister Sites Section -->
     <div class="sister-tools-section">
         <h2>Explore Our Other Free Tools</h2>
         <p>All our tools process your data entirely in your browser, ensuring your files are never stored or uploaded, keeping your privacy completely secure.</p>
-        <a href="https://www.free-ean-maker.com" target="_blank" rel="noopener noreferrer" class="sister-site-btn">
+        <a href="https://free-ean-maker.com" target="_blank" rel="noopener noreferrer" class="sister-site-btn">
             Free EAN Barcode Generator
         </a>
-        <a href="https://www.free-qr-make.com" target="_blank" rel="noopener noreferrer" class="sister-site-btn">
+        <a href="https://free-qr-make.com" target="_blank" rel="noopener noreferrer" class="sister-site-btn">
             Free QR Code Generator
         </a>
-        <a href="https://www.free-video-toolkit.com" target="_blank" rel="noopener noreferrer" class="sister-site-btn">
+        <a href="https://free-video-toolkit.com" target="_blank" rel="noopener noreferrer" class="sister-site-btn">
             Free Video Toolkit
         </a>
     </div>
@@ -217,6 +262,10 @@
         let croppedImage = null;
         let originalResizeImage = null;
         let resizedImage = null;
+        let originalFilterImage = null;
+        let currentFilteredImage = null;
+        let removebgBlob = null;
+        let removedBgBlob = null;
 
         // ===== TAB SWITCHING =====
         function switchTab(tabName) {
@@ -251,6 +300,26 @@
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     document.getElementById('convertUpload').value = '';
                     document.getElementById('convertLoading').style.display = 'none';
+                } else if (currentTabId === 'filters') {
+                    const canvas = document.getElementById('filterCanvas');
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    document.getElementById('filterUpload').value = '';
+                    document.getElementById('downloadFilter').style.display = 'none';
+                    document.getElementById('blurOptions').style.display = 'none';
+                    originalFilterImage = null;
+                    currentFilteredImage = null;
+                } else if (currentTabId === 'removebg') {
+                    const canvas = document.getElementById('removebgCanvas');
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    document.getElementById('removebgUpload').value = '';
+                    document.getElementById('removebgOriginal').style.display = 'none';
+                    document.getElementById('downloadRemovebg').style.display = 'none';
+                    document.getElementById('removebgLoading').style.display = 'none';
+                    if (removebgBlob) URL.revokeObjectURL(document.getElementById('removebgOriginal').src);
+                    removebgBlob = null;
+                    removedBgBlob = null;
                 }
             }
 
@@ -262,6 +331,12 @@
             });
             document.getElementById(tabName).classList.add('active');
             document.querySelector(`button[onclick="switchTab('${tabName}')"]`).classList.add('active-tab');
+
+            // Show blur options if Filters tab is active and blur is selected
+            if (tabName === 'filters') {
+                const filterType = document.getElementById('filterType').value;
+                document.getElementById('blurOptions').style.display = filterType === 'blur' ? 'block' : 'none';
+            }
         }
 
         // ===== DRAG AND DROP SETUP =====
@@ -297,6 +372,8 @@
         setupDragDrop('cropDragArea', 'cropUpload');
         setupDragDrop('resizeDragArea', 'resizeUpload');
         setupDragDrop('convertDragArea', 'convertUpload');
+        setupDragDrop('filterDragArea', 'filterUpload');
+        setupDragDrop('removebgDragArea', 'removebgUpload');
 
         // ===== IMAGE LOADING HELPER =====
         async function loadImage(file) {
@@ -356,6 +433,32 @@
             });
         }
 
+        // ===== LOAD IMAGE FOR FILTERS =====
+        async function loadImageForFilters(file) {
+            const blobUrl = URL.createObjectURL(file);
+            try {
+                const image = await Image.load(blobUrl);
+                return image;
+            } finally {
+                URL.revokeObjectURL(blobUrl);
+            }
+        }
+
+        // ===== DRAW IMAGE ON CANVAS =====
+        function drawImageOnCanvas(image, canvasId, isImageJS = false) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const maxWidth = 400;
+            const scale = Math.min(maxWidth / image.width, 1);
+            canvas.width = image.width * scale;
+            canvas.height = image.height * scale;
+            if (isImageJS) {
+                ctx.drawImage(image.getCanvas(), 0, 0, canvas.width, canvas.height);
+            } else {
+                ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+            }
+        }
+
         // ===== CROP FUNCTIONALITY =====
         document.getElementById('cropUpload').addEventListener('change', async function(e) {
             const file = e.target.files[0];
@@ -364,13 +467,8 @@
                 return;
             }
             try {
-                const img = await loadImage(file);
-                originalCropImage = img;
-                const canvas = document.getElementById('cropCanvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = Math.min(img.width, 400);
-                canvas.height = img.width > 400 ? (img.height * 400 / img.width) : img.height;
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                originalCropImage = await loadImage(file);
+                drawImageOnCanvas(originalCropImage, 'cropCanvas');
                 document.getElementById('downloadCrop').style.display = 'none';
                 document.getElementById('resetCrop').style.display = 'none';
             } catch (err) {
@@ -426,27 +524,30 @@
             croppedCanvas.height = sHeight;
             const croppedCtx = croppedCanvas.getContext('2d');
             croppedCtx.drawImage(originalCropImage, sx, sy, sWidth, sHeight, 0, 0, sWidth, sHeight);
-            const displayCanvas = document.getElementById('cropCanvas');
-            displayCanvas.width = Math.min(sWidth, 400);
-            displayCanvas.height = sWidth > 400 ? (sHeight * 400 / sWidth) : sHeight;
-            const ctx = displayCanvas.getContext('2d');
-            ctx.drawImage(croppedCanvas, 0, 0, displayCanvas.width, displayCanvas.height);
             croppedImage = croppedCanvas;
+            drawImageOnCanvas(croppedCanvas, 'cropCanvas');
             document.getElementById('downloadCrop').style.display = 'inline-block';
             document.getElementById('resetCrop').style.display = 'inline-block';
         });
 
         document.getElementById('resetCrop').addEventListener('click', () => {
             if (originalCropImage) {
-                const canvas = document.getElementById('cropCanvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = Math.min(originalCropImage.width, 400);
-                canvas.height = originalCropImage.width > 400 ? (originalCropImage.height * 400 / originalCropImage.width) : originalCropImage.height;
-                ctx.drawImage(originalCropImage, 0, 0, canvas.width, canvas.height);
+                drawImageOnCanvas(originalCropImage, 'cropCanvas');
                 croppedImage = null;
                 document.getElementById('downloadCrop').style.display = 'none';
                 document.getElementById('resetCrop').style.display = 'none';
                 cropRect = null;
+            }
+        });
+
+        document.getElementById('downloadCrop').addEventListener('click', () => {
+            if (croppedImage) {
+                const link = document.createElement('a');
+                link.download = 'cropped.png';
+                link.href = croppedImage.toDataURL('image/png');
+                link.click();
+            } else {
+                alert('No image to download.');
             }
         });
 
@@ -458,13 +559,8 @@
                 return;
             }
             try {
-                const img = await loadImage(file);
-                originalResizeImage = img;
-                const canvas = document.getElementById('resizeCanvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = Math.min(img.width, 400);
-                canvas.height = img.width > 400 ? (img.height * 400 / img.width) : img.height;
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                originalResizeImage = await loadImage(file);
+                drawImageOnCanvas(originalResizeImage, 'resizeCanvas');
                 document.getElementById('downloadResize').style.display = 'none';
                 document.getElementById('resetResize').style.display = 'none';
             } catch (err) {
@@ -487,28 +583,30 @@
             canvas.width = tw;
             canvas.height = th;
             const ctx = canvas.getContext('2d');
-            // Explicitly stretch/squash the image to fit the new dimensions
             ctx.drawImage(originalResizeImage, 0, 0, originalResizeImage.width, originalResizeImage.height, 0, 0, tw, th);
-            const displayCanvas = document.getElementById('resizeCanvas');
-            displayCanvas.width = Math.min(tw, 400);
-            displayCanvas.height = tw > 400 ? (th * 400 / tw) : th;
-            const displayCtx = displayCanvas.getContext('2d');
-            displayCtx.drawImage(canvas, 0, 0, displayCanvas.width, displayCanvas.height);
             resizedImage = canvas;
+            drawImageOnCanvas(resizedImage, 'resizeCanvas');
             document.getElementById('downloadResize').style.display = 'inline-block';
             document.getElementById('resetResize').style.display = 'inline-block';
         });
 
         document.getElementById('resetResize').addEventListener('click', () => {
             if (originalResizeImage) {
-                const canvas = document.getElementById('resizeCanvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = Math.min(originalResizeImage.width, 400);
-                canvas.height = originalResizeImage.width > 400 ? (originalResizeImage.height * 400 / originalResizeImage.width) : originalResizeImage.height;
-                ctx.drawImage(originalResizeImage, 0, 0, canvas.width, canvas.height);
+                drawImageOnCanvas(originalResizeImage, 'resizeCanvas');
                 resizedImage = null;
                 document.getElementById('downloadResize').style.display = 'none';
                 document.getElementById('resetResize').style.display = 'none';
+            }
+        });
+
+        document.getElementById('downloadResize').addEventListener('click', () => {
+            if (resizedImage) {
+                const link = document.createElement('a');
+                link.download = 'resized.png';
+                link.href = resizedImage.toDataURL('image/png');
+                link.click();
+            } else {
+                alert('No image to download.');
             }
         });
 
@@ -521,11 +619,7 @@
             }
             try {
                 const img = await loadImage(file);
-                const canvas = document.getElementById('convertCanvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = Math.min(img.width, 400);
-                canvas.height = img.width > 400 ? (img.height * 400 / img.width) : img.height;
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                drawImageOnCanvas(img, 'convertCanvas');
                 document.getElementById('convertLoading').style.display = 'none';
             } catch (err) {
                 alert('Error loading image: ' + err.message);
@@ -584,23 +678,125 @@
             }
         });
 
-        // ===== DOWNLOAD FUNCTIONS =====
-        document.getElementById('downloadCrop').addEventListener('click', () => {
-            if (croppedImage) {
+        // ===== FILTERS FUNCTIONALITY =====
+        document.getElementById('filterUpload').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file || !file.type.match(/image\/(png|jpeg|webp|bmp|gif|tiff|tif|heic|heif)/)) {
+                alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).');
+                return;
+            }
+            try {
+                originalFilterImage = await loadImageForFilters(file);
+                drawImageOnCanvas(originalFilterImage, 'filterCanvas', true);
+                document.getElementById('downloadFilter').style.display = 'none';
+                const filterType = document.getElementById('filterType').value;
+                document.getElementById('blurOptions').style.display = filterType === 'blur' ? 'block' : 'none';
+            } catch (err) {
+                alert('Error loading image: ' + err.message);
+            }
+        });
+
+        document.getElementById('filterType').addEventListener('change', () => {
+            const filterType = document.getElementById('filterType').value;
+            document.getElementById('blurOptions').style.display = filterType === 'blur' ? 'block' : 'none';
+        });
+
+        document.getElementById('applyFilterBtn').addEventListener('click', async () => {
+            if (!originalFilterImage) {
+                alert('Please upload an image first.');
+                return;
+            }
+            try {
+                const filterType = document.getElementById('filterType').value;
+                let filteredImage = originalFilterImage;
+                if (filterType === 'grayscale') {
+                    filteredImage = originalFilterImage.grey();
+                } else if (filterType === 'invert') {
+                    filteredImage = originalFilterImage.invert();
+                } else if (filterType === 'blur') {
+                    const radius = parseInt(document.getElementById('blurRadius').value);
+                    if (isNaN(radius) || radius < 1 || radius > 100) {
+                        alert('Please enter a valid blur radius (1-100).');
+                        return;
+                    }
+                    filteredImage = originalFilterImage.blur({ radius });
+                } else if (filterType === 'rotateLeft') {
+                    filteredImage = originalFilterImage.rotateLeft();
+                } else if (filterType === 'rotateRight') {
+                    filteredImage = originalFilterImage.rotateRight();
+                }
+                currentFilteredImage = filteredImage;
+                drawImageOnCanvas(filteredImage, 'filterCanvas', true);
+                document.getElementById('downloadFilter').style.display = 'inline-block';
+            } catch (err) {
+                alert('Error applying filter: ' + err.message);
+            }
+        });
+
+        document.getElementById('downloadFilter').addEventListener('click', () => {
+            if (currentFilteredImage) {
                 const link = document.createElement('a');
-                link.download = 'cropped.png';
-                link.href = croppedImage.toDataURL('image/png');
+                link.download = 'filtered.png';
+                link.href = currentFilteredImage.getCanvas().toDataURL('image/png');
                 link.click();
             } else {
                 alert('No image to download.');
             }
         });
 
-        document.getElementById('downloadResize').addEventListener('click', () => {
-            if (resizedImage) {
+        // ===== REMOVE BACKGROUND FUNCTIONALITY =====
+        document.getElementById('removebgUpload').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file || !file.type.match(/image\/(png|jpeg|webp|bmp|gif|heic|heif)/)) {
+                alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, HEIC).');
+                return;
+            }
+            try {
+                const img = await loadImage(file);
+                removebgBlob = file;
+                const originalImg = document.getElementById('removebgOriginal');
+                originalImg.src = URL.createObjectURL(file);
+                originalImg.style.display = 'inline-block';
+                drawImageOnCanvas(img, 'removebgCanvas');
+                document.getElementById('downloadRemovebg').style.display = 'none';
+                document.getElementById('removebgLoading').style.display = 'none';
+                removedBgBlob = null;
+            } catch (err) {
+                alert('Error loading image: ' + err.message);
+            }
+        });
+
+        document.getElementById('removebgBtn').addEventListener('click', async () => {
+            if (!removebgBlob) {
+                alert('Please upload an image first.');
+                return;
+            }
+            const loading = document.getElementById('removebgLoading');
+            loading.style.display = 'block';
+            try {
+                const blob = await imglyRemoveBackground(removebgBlob);
+                removedBgBlob = blob;
+                const img = new Image();
+                img.onload = () => {
+                    drawImageOnCanvas(img, 'removebgCanvas');
+                    document.getElementById('downloadRemovebg').style.display = 'inline-block';
+                };
+                img.onerror = () => {
+                    throw new Error('Failed to load processed image');
+                };
+                img.src = URL.createObjectURL(blob);
+            } catch (err) {
+                alert('Error removing background: ' + err.message);
+            } finally {
+                loading.style.display = 'none';
+            }
+        });
+
+        document.getElementById('downloadRemovebg').addEventListener('click', () => {
+            if (removedBgBlob) {
                 const link = document.createElement('a');
-                link.download = 'resized.png';
-                link.href = resizedImage.toDataURL('image/png');
+                link.download = 'no-background.png';
+                link.href = URL.createObjectURL(removedBgBlob);
                 link.click();
             } else {
                 alert('No image to download.');
