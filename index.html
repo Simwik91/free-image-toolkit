@@ -20,9 +20,12 @@
     <title>Free Image Toolkit - Crop, Resize, Convert</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="canonical" href="https://free-image-toolkit.com">
-    <script src="https://unpkg.com/image-js@0.35.0/dist/image.min.js" crossorigin="anonymous" onerror="console.error('Failed to load image-js library.');"></script>
-    <script src="https://unpkg.com/libheif-js@1.17.0/libheif.js" crossorigin="anonymous" onerror="console.error('Failed to load libheif-js library.');"></script>
-    <script src="https://unpkg.com/onnxruntime-web@1.20.0-dev.20240924-cfa45df6b5/dist/ort.min.js" crossorigin="anonymous" onerror="console.error('Failed to load ONNX Runtime.');"></script>
+    
+    <!-- Fixed CDN links with CORS support -->
+    <script src="https://cdn.jsdelivr.net/npm/image-js@0.35.0/dist/image.min.js" crossorigin="anonymous" onerror="console.error('Failed to load image-js library.');"></script>
+    <script src="https://cdn.jsdelivr.net/npm/libheif-js@1.17.0/libheif.js" crossorigin="anonymous" onerror="console.error('Failed to load libheif-js library.');"></script>
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.0-dev.20240924-cfa45df6b5/dist/ort.min.js" crossorigin="anonymous" onerror="console.error('Failed to load ONNX Runtime.');"></script>
+    
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
@@ -34,167 +37,366 @@
     </script>
     <style>
         body {
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             text-align: center;
             padding: 2em;
-            background: #f4f4f4;
+            background: linear-gradient(135deg, #f4f4f4 0%, #e0e0e0 100%);
             color: #333;
             margin: 0;
+            min-height: 100vh;
         }
-        h1 { font-size: 2em; margin-bottom: 0.2em; }
-        h2 { font-size: 1.5em; margin-top: 2em; margin-bottom: 0.5em; }
-        p { margin: 0 0 2em; color: #666; }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            padding: 30px;
+            position: relative;
+        }
+        h1 { 
+            font-size: 2.5em; 
+            margin-bottom: 0.2em; 
+            color: #007acc;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 { 
+            font-size: 1.8em; 
+            margin-top: 1.5em; 
+            margin-bottom: 0.8em; 
+            color: #005fa3;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+        p { 
+            margin: 0 0 1.8em; 
+            color: #555; 
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
         input, select, button {
-            margin: 0.5em auto;
-            padding: 0.75em;
+            margin: 0.8em auto;
+            padding: 0.9em;
             width: 90%;
-            max-width: 400px;
+            max-width: 450px;
             font-size: 1em;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
             box-sizing: border-box;
+            font-family: inherit;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #007acc;
+            box-shadow: 0 0 0 3px rgba(0,122,204,0.2);
         }
         button {
-            background-color: #007acc;
+            background: linear-gradient(to bottom, #007acc, #0066b3);
             color: white;
             border: none;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s;
+            font-weight: bold;
+            font-size: 1.05em;
+            letter-spacing: 0.5px;
         }
-        button:hover { background-color: #005fa3; }
-        .tab-buttons { margin-bottom: 2em; }
+        button:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            background: linear-gradient(to bottom, #0066b3, #00508c);
+        }
+        .tab-buttons { 
+            margin-bottom: 2.5em;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
         .tab-buttons button {
             width: auto;
-            min-width: 120px;
-            margin: 0 0.5em;
-            display: inline-block;
-            padding: 0.75em 1.5em;
+            min-width: 140px;
+            margin: 0;
+            padding: 0.9em 1.8em;
+            border-radius: 50px;
+            font-weight: 600;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
         }
-        .tab-buttons button.active-tab { background-color: #005fa3; }
-        canvas { margin: 1em auto; display: block; max-width: 400px; border: 1px solid #ccc; }
-        .loading { display: none; color: #007acc; font-weight: bold; margin: 1em auto; }
+        .tab-buttons button.active-tab { 
+            background: linear-gradient(to bottom, #005fa3, #004a80);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        canvas { 
+            margin: 1.5em auto; 
+            display: block; 
+            max-width: 100%; 
+            height: auto;
+            border: 1px solid #ddd;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            background: #f8f8f8;
+            border-radius: 8px;
+        }
+        .loading { 
+            display: none; 
+            color: #007acc; 
+            font-weight: bold; 
+            margin: 1.5em auto;
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(0,122,204,0.1);
+            max-width: 400px;
+        }
+        .resize-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 1em;
+        }
         .resize-controls input {
-            width: 45%;
-            max-width: 180px;
+            width: 48%;
+            max-width: 200px;
             display: inline-block;
+            text-align: center;
+            font-weight: bold;
         }
-        .tool-section { display: none; }
-        .tool-section.active { display: block; }
+        .tool-section { 
+            display: none; 
+            animation: fadeIn 0.5s ease;
+        }
+        .tool-section.active { 
+            display: block; 
+        }
         .drag-drop-area {
             width: 90%;
-            max-width: 400px;
-            margin: 1em auto;
-            padding: 2em;
-            border: 2px dashed #ccc;
-            border-radius: 6px;
-            background: #fff;
-            color: #666;
+            max-width: 450px;
+            margin: 1.5em auto;
+            padding: 2.5em;
+            border: 2px dashed #007acc;
+            border-radius: 10px;
+            background: rgba(0,122,204,0.05);
+            color: #555;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            position: relative;
+            overflow: hidden;
         }
-        .drag-drop-area.drag-over { background: #e6f0fa; }
-        hr { margin: 2em auto; width: 80%; border: 0; border-top: 1px solid #ddd; }
-        footer { margin-top: 4em; font-size: 0.85em; color: #888; }
+        .drag-drop-area:before {
+            content: '📁';
+            font-size: 2.5em;
+            display: block;
+            margin-bottom: 15px;
+            opacity: 0.7;
+        }
+        .drag-drop-area.drag-over { 
+            background: rgba(0,122,204,0.15);
+            border-color: #005fa3;
+        }
+        hr { 
+            margin: 2.5em auto; 
+            width: 80%; 
+            border: 0; 
+            border-top: 1px solid #e0e0e0; 
+        }
+        footer { 
+            margin-top: 4em; 
+            font-size: 0.9em; 
+            color: #777;
+            padding: 20px;
+        }
         .sister-site-btn {
             display: block;
-            background: #ff6600;
+            background: linear-gradient(to bottom, #ff6600, #e05a00);
             color: white;
-            padding: 0.75em 1.5em;
-            margin: 1em auto;
-            border-radius: 6px;
+            padding: 1.1em;
+            margin: 1.2em auto;
+            border-radius: 8px;
             text-decoration: none;
             font-weight: bold;
-            max-width: 400px;
+            max-width: 450px;
             width: 90%;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
             text-align: center;
+            font-size: 1.05em;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
-        .sister-site-btn:hover { background-color: #cc5200; }
-        .sister-tools-section { margin: 2em auto; }
-        .sister-tools-section h2 { font-size: 1.8em; color: #333; }
-        .sister-tools-section p { font-size: 1em; max-width: 600px; margin: 1em auto; }
+        .sister-site-btn:hover { 
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            background: linear-gradient(to bottom, #e05a00, #cc5200);
+        }
+        .sister-tools-section { 
+            margin: 2.5em auto; 
+            padding: 25px;
+            background: rgba(0,122,204,0.05);
+            border-radius: 12px;
+        }
+        .sister-tools-section h2 { 
+            font-size: 1.9em; 
+            color: #333; 
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-top: 0.5em;
+        }
+        .sister-tools-section p { 
+            font-size: 1.05em; 
+            max-width: 650px; 
+            margin: 1.2em auto; 
+            color: #555;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 1.5em;
+        }
+        .action-buttons button {
+            width: auto;
+            min-width: 160px;
+        }
+        .tool-icon {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            color: #007acc;
+            display: block;
+        }
+        .status-message {
+            display: none;
+            padding: 10px;
+            margin: 10px auto;
+            border-radius: 6px;
+            max-width: 450px;
+            font-weight: bold;
+        }
+        .success {
+            background: rgba(46, 204, 113, 0.2);
+            color: #27ae60;
+            border: 1px solid #2ecc71;
+        }
+        .error {
+            background: rgba(231, 76, 60, 0.2);
+            color: #c0392b;
+            border: 1px solid #e74c3c;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 600px) {
+            body { padding: 1em; }
+            .container { padding: 20px; }
+            h1 { font-size: 2em; }
+            .tab-buttons button {
+                min-width: 120px;
+                padding: 0.8em 1.2em;
+            }
+            .resize-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            .resize-controls input {
+                width: 90%;
+                max-width: 250px;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>Free Image Toolkit</h1>
-    <p>Crop, resize, and convert images in PNG, JPEG, WEBP, BMP, GIF, TIFF, or HEIC</p>
+    <div class="container">
+        <h1>Free Image Toolkit</h1>
+        <p>Crop, resize, and convert images in PNG, JPEG, WEBP, BMP, GIF, TIFF, or HEIC</p>
 
-    <!-- Tab Navigation -->
-    <div class="tab-buttons">
-        <button class="active-tab" onclick="switchTab('crop')">Crop</button>
-        <button onclick="switchTab('resize')">Resize</button>
-        <button onclick="switchTab('convert')">Convert</button>
-    </div>
-
-    <!-- Crop Tool -->
-    <div id="crop" class="tool-section active">
-        <h2>Image Cropper</h2>
-        <p><i>Draw a rectangle on the image to crop it.</i></p>
-        <div class="drag-drop-area" id="cropDragArea">Drag your picture here or click to browse</div>
-        <input type="file" id="cropUpload" accept="image/*,.heic,.heif,.tiff,.tif" style="display: none;" />
-        <canvas id="cropCanvas"></canvas>
-        <button id="cropBtn">Crop Image</button>
-        <button id="resetCrop" style="display: none;">Reset</button>
-        <button id="downloadCrop" style="display: none;">Download</button>
-    </div>
-
-    <!-- Resize Tool -->
-    <div id="resize" class="tool-section">
-        <h2>Image Resizer</h2>
-        <p><i>Resize your image to the specified dimensions. The image will be stretched or squashed to fit without padding.</i></p>
-        <div class="drag-drop-area" id="resizeDragArea">Drag your picture here or click to browse</div>
-        <input type="file" id="resizeUpload" accept="image/*,.heic,.heif,.tiff,.tif" style="display: none;" />
-        <div class="resize-controls">
-            <input type="number" id="resizeWidth" min="1" placeholder="Width (px)">
-            <input type="number" id="resizeHeight" min="1" placeholder="Height (px)">
+        <!-- Tab Navigation -->
+        <div class="tab-buttons">
+            <button class="active-tab" onclick="switchTab('crop')">Crop</button>
+            <button onclick="switchTab('resize')">Resize</button>
+            <button onclick="switchTab('convert')">Convert</button>
         </div>
-        <canvas id="resizeCanvas"></canvas>
-        <button id="resizeBtn">Resize Image</button>
-        <button id="resetResize" style="display: none;">Reset</button>
-        <button id="downloadResize" style="display: none;">Download</button>
+
+        <!-- Status Messages -->
+        <div id="cropStatus" class="status-message"></div>
+        <div id="resizeStatus" class="status-message"></div>
+        <div id="convertStatus" class="status-message"></div>
+
+        <!-- Crop Tool -->
+        <div id="crop" class="tool-section active">
+            <span class="tool-icon">✂️</span>
+            <h2>Image Cropper</h2>
+            <p><i>Draw a rectangle on the image to crop it.</i></p>
+            <div class="drag-drop-area" id="cropDragArea">Drag your picture here or click to browse</div>
+            <input type="file" id="cropUpload" accept="image/*,.heic,.heif,.tiff,.tif" style="display: none;" />
+            <canvas id="cropCanvas"></canvas>
+            <div class="action-buttons">
+                <button id="cropBtn">Crop Image</button>
+                <button id="resetCrop" style="display: none;">Reset</button>
+                <button id="downloadCrop" style="display: none;">Download</button>
+            </div>
+        </div>
+
+        <!-- Resize Tool -->
+        <div id="resize" class="tool-section">
+            <span class="tool-icon">↔️</span>
+            <h2>Image Resizer</h2>
+            <p><i>Resize your image to the specified dimensions. The image will be stretched or squashed to fit without padding.</i></p>
+            <div class="drag-drop-area" id="resizeDragArea">Drag your picture here or click to browse</div>
+            <input type="file" id="resizeUpload" accept="image/*,.heic,.heif,.tiff,.tif" style="display: none;" />
+            <div class="resize-controls">
+                <input type="number" id="resizeWidth" min="1" placeholder="Width (px)" value="800">
+                <input type="number" id="resizeHeight" min="1" placeholder="Height (px)" value="600">
+            </div>
+            <canvas id="resizeCanvas"></canvas>
+            <div class="action-buttons">
+                <button id="resizeBtn">Resize Image</button>
+                <button id="resetResize" style="display: none;">Reset</button>
+                <button id="downloadResize" style="display: none;">Download</button>
+            </div>
+        </div>
+
+        <!-- Image Converter -->
+        <div id="convert" class="tool-section">
+            <span class="tool-icon">🔄</span>
+            <h2>Image Converter</h2>
+            <p><i>Convert your image to a different format. Processing may take a few seconds.</i></p>
+            <div class="drag-drop-area" id="convertDragArea">Drag your picture here or click to browse</div>
+            <input type="file" id="convertUpload" accept="image/*,.tiff,.tif" style="display: none;" />
+            <canvas id="convertCanvas"></canvas>
+            <div id="convertLoading" class="loading">Processing... (Please wait)</div>
+            <select id="outputFormat">
+                <option value="png">PNG</option>
+                <option value="jpeg">JPEG</option>
+                <option value="webp">WEBP</option>
+                <option value="bmp">BMP</option>
+                <option value="gif">GIF</option>
+                <option value="tiff">TIFF</option>
+                <option value="avif">AVIF</option>
+            </select>
+            <div class="action-buttons">
+                <button id="convertBtn">Convert & Download</button>
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- Sister Sites Section -->
+        <div class="sister-tools-section">
+            <h2>Explore Our Other Free Tools</h2>
+            <p>All our tools process your data entirely in your browser, ensuring your files are never stored or uploaded, keeping your privacy completely secure.</p>
+            <a href="https://free-ean-maker.com" target="_blank" rel="noopener noreferrer" class="sister-site-btn">
+                Free EAN Barcode Generator
+            </a>
+            <a href="https://free-qr-make.com" target="_blank" rel="noopener noreferrer" class="sister-site-btn">
+                Free QR Code Generator
+            </a>
+            <a href="https://free-video-toolkit.com" target="_blank" rel="noopener noreferrer" class="sister-site-btn">
+                Free Video Toolkit
+            </a>
+        </div>
+
+        <footer>
+            Free Image Toolkit. Made with ❤️
+        </footer>
     </div>
-
-    <!-- Image Converter -->
-    <div id="convert" class="tool-section">
-        <h2>Image Converter</h2>
-        <p><i>Convert your image to a different format. Processing may take a few seconds.</i></p>
-        <div class="drag-drop-area" id="convertDragArea">Drag your picture here or click to browse</div>
-        <input type="file" id="convertUpload" accept="image/*,.tiff,.tif" style="display: none;" />
-        <canvas id="convertCanvas"></canvas>
-        <div id="convertLoading" class="loading">Processing... (Please wait)</div>
-        <select id="outputFormat">
-            <option value="png">PNG</option>
-            <option value="jpeg">JPEG</option>
-            <option value="webp">WEBP</option>
-            <option value="bmp">BMP</option>
-            <option value="gif">GIF</option>
-            <option value="tiff">TIFF</option>
-            <option value="avif">AVIF</option>
-        </select>
-        <button id="convertBtn">Convert & Download</button>
-    </div>
-
-    <hr>
-
-    <!-- Sister Sites Section -->
-    <div class="sister-tools-section">
-        <h2>Explore Our Other Free Tools</h2>
-        <p>All our tools process your data entirely in your browser, ensuring your files are never stored or uploaded, keeping your privacy completely secure.</p>
-        <a href="https://free-ean-maker.com" target="_blank" rel="noopener noreferrer" class="sister-site-btn">
-            Free EAN Barcode Generator
-        </a>
-        <a href="https://free-qr-make.com" target="_blank" rel="noopener noreferrer" class="sister-site-btn">
-            Free QR Code Generator
-        </a>
-        <a href="https://free-video-toolkit.com" target="_blank" rel="noopener noreferrer" class="sister-site-btn">
-            Free Video Toolkit
-        </a>
-    </div>
-
-    <footer>
-        Free Image Toolkit. Made with ❤️
-    </footer>
 
     <!-- Analytics Script -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-C4SSJKXG4Z"></script>
@@ -217,59 +419,62 @@
         let originalResizeImage = null;
         let resizedImage = null;
 
-        // Main Script
-        document.addEventListener('DOMContentLoaded', () => {
-            // Tab Switching
-            function switchTab(tabName) {
-                const currentTab = document.querySelector('.tool-section.active');
-                const currentTabId = currentTab?.id;
+        // Moved switchTab to global scope
+        function switchTab(tabName) {
+            const currentTab = document.querySelector('.tool-section.active');
+            const currentTabId = currentTab?.id;
 
-                if (currentTabId) {
-                    if (currentTabId === 'crop') {
-                        const canvas = document.getElementById('cropCanvas');
-                        if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-                        const cropUpload = document.getElementById('cropUpload');
-                        if (cropUpload) cropUpload.value = '';
-                        const downloadCrop = document.getElementById('downloadCrop');
-                        const resetCrop = document.getElementById('resetCrop');
-                        if (downloadCrop) downloadCrop.style.display = 'none';
-                        if (resetCrop) resetCrop.style.display = 'none';
-                        originalCropImage = null;
-                        croppedImage = null;
-                        cropRect = null;
-                    } else if (currentTabId === 'resize') {
-                        const canvas = document.getElementById('resizeCanvas');
-                        if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-                        const resizeUpload = document.getElementById('resizeUpload');
-                        const resizeWidth = document.getElementById('resizeWidth');
-                        const resizeHeight = document.getElementById('resizeHeight');
-                        if (resizeUpload) resizeUpload.value = '';
-                        if (resizeWidth) resizeWidth.value = '';
-                        if (resizeHeight) resizeHeight.value = '';
-                        const downloadResize = document.getElementById('downloadResize');
-                        const resetResize = document.getElementById('resetResize');
-                        if (downloadResize) downloadResize.style.display = 'none';
-                        if (resetResize) resetResize.style.display = 'none';
-                        originalResizeImage = null;
-                        resizedImage = null;
-                    } else if (currentTabId === 'convert') {
-                        const canvas = document.getElementById('convertCanvas');
-                        if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-                        const convertUpload = document.getElementById('convertUpload');
-                        const convertLoading = document.getElementById('convertLoading');
-                        if (convertUpload) convertUpload.value = '';
-                        if (convertLoading) convertLoading.style.display = 'none';
-                    }
+            if (currentTabId) {
+                if (currentTabId === 'crop') {
+                    const canvas = document.getElementById('cropCanvas');
+                    if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+                    const cropUpload = document.getElementById('cropUpload');
+                    if (cropUpload) cropUpload.value = '';
+                    const downloadCrop = document.getElementById('downloadCrop');
+                    const resetCrop = document.getElementById('resetCrop');
+                    if (downloadCrop) downloadCrop.style.display = 'none';
+                    if (resetCrop) resetCrop.style.display = 'none';
+                    originalCropImage = null;
+                    croppedImage = null;
+                    cropRect = null;
+                    document.getElementById('cropStatus').style.display = 'none';
+                } else if (currentTabId === 'resize') {
+                    const canvas = document.getElementById('resizeCanvas');
+                    if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+                    const resizeUpload = document.getElementById('resizeUpload');
+                    const resizeWidth = document.getElementById('resizeWidth');
+                    const resizeHeight = document.getElementById('resizeHeight');
+                    if (resizeUpload) resizeUpload.value = '';
+                    if (resizeWidth) resizeWidth.value = '';
+                    if (resizeHeight) resizeHeight.value = '';
+                    const downloadResize = document.getElementById('downloadResize');
+                    const resetResize = document.getElementById('resetResize');
+                    if (downloadResize) downloadResize.style.display = 'none';
+                    if (resetResize) resetResize.style.display = 'none';
+                    originalResizeImage = null;
+                    resizedImage = null;
+                    document.getElementById('resizeStatus').style.display = 'none';
+                } else if (currentTabId === 'convert') {
+                    const canvas = document.getElementById('convertCanvas');
+                    if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+                    const convertUpload = document.getElementById('convertUpload');
+                    const convertLoading = document.getElementById('convertLoading');
+                    if (convertUpload) convertUpload.value = '';
+                    if (convertLoading) convertLoading.style.display = 'none';
+                    document.getElementById('convertStatus').style.display = 'none';
                 }
-
-                document.querySelectorAll('.tool-section').forEach(section => section.classList.remove('active'));
-                document.querySelectorAll('.tab-buttons button').forEach(btn => btn.classList.remove('active-tab'));
-                const tabSection = document.getElementById(tabName);
-                const tabButton = document.querySelector(`button[onclick="switchTab('${tabName}')"]`);
-                if (tabSection) tabSection.classList.add('active');
-                if (tabButton) tabButton.classList.add('active-tab');
             }
 
+            document.querySelectorAll('.tool-section').forEach(section => section.classList.remove('active'));
+            document.querySelectorAll('.tab-buttons button').forEach(btn => btn.classList.remove('active-tab'));
+            const tabSection = document.getElementById(tabName);
+            const tabButton = document.querySelector(`button[onclick="switchTab('${tabName}')"]`);
+            if (tabSection) tabSection.classList.add('active');
+            if (tabButton) tabButton.classList.add('active-tab');
+        }
+
+        // Main Script
+        document.addEventListener('DOMContentLoaded', () => {
             // Drag and Drop Setup
             function setupDragDrop(dragAreaId, inputId) {
                 const dragArea = document.getElementById(dragAreaId);
@@ -297,9 +502,23 @@
                         fileInput.files = files;
                         fileInput.dispatchEvent(new Event('change'));
                     } else {
-                        alert('Please drop a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).');
+                        showStatus(dragAreaId.replace('DragArea', 'Status'), 'Please drop a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).', 'error');
                     }
                 });
+            }
+
+            function showStatus(elementId, message, type) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.textContent = message;
+                    element.className = `status-message ${type}`;
+                    element.style.display = 'block';
+                    
+                    // Auto hide after 5 seconds
+                    setTimeout(() => {
+                        element.style.display = 'none';
+                    }, 5000);
+                }
             }
 
             setupDragDrop('cropDragArea', 'cropUpload');
@@ -314,6 +533,13 @@
                         reject(new Error('Invalid file type. Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).'));
                         return;
                     }
+                    
+                    // Check if libheif is loaded for HEIC/HEIF
+                    if ((fileType === 'image/heic' || fileType === 'image/heif') && !window.libheif) {
+                        reject(new Error('HEIC/HEIF support is not available. Please try a different browser or file format.'));
+                        return;
+                    }
+                    
                     if (fileType === 'image/heic' || fileType === 'image/heif') {
                         const reader = new FileReader();
                         reader.onload = async (e) => {
@@ -340,6 +566,12 @@
                         const reader = new FileReader();
                         reader.onload = async (e) => {
                             try {
+                                // Check if image-js is loaded
+                                if (!window.imageJS) {
+                                    reject(new Error('TIFF support is not available. Please try a different browser or file format.'));
+                                    return;
+                                }
+                                
                                 const image = await imageJS.Image.load(e.target.result);
                                 const canvas = document.createElement('canvas');
                                 canvas.width = image.width;
@@ -395,7 +627,7 @@
                 cropUpload.addEventListener('change', async (e) => {
                     const file = e.target.files[0];
                     if (!file || !file.type.match(/image\/(png|jpeg|jpg|webp|bmp|gif|tiff|tif|heic|heif)/)) {
-                        alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).');
+                        showStatus('cropStatus', 'Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).', 'error');
                         return;
                     }
                     try {
@@ -405,8 +637,9 @@
                         const resetCrop = document.getElementById('resetCrop');
                         if (downloadCrop) downloadCrop.style.display = 'none';
                         if (resetCrop) resetCrop.style.display = 'none';
+                        showStatus('cropStatus', 'Image loaded successfully! Draw a rectangle to crop.', 'success');
                     } catch (err) {
-                        alert('Error loading image: ' + err.message);
+                        showStatus('cropStatus', 'Error loading image: ' + err.message, 'error');
                     }
                 });
             } else {
@@ -416,12 +649,16 @@
             const cropCanvas = document.getElementById('cropCanvas');
             if (cropCanvas) {
                 cropCanvas.addEventListener('mousedown', (e) => {
+                    if (!originalCropImage) {
+                        showStatus('cropStatus', 'Please upload an image first.', 'error');
+                        return;
+                    }
                     isDrawing = true;
                     const rect = cropCanvas.getBoundingClientRect();
                     cropStart = { x: e.clientX - rect.left, y: e.clientY - rect.top };
                 });
                 cropCanvas.addEventListener('mousemove', (e) => {
-                    if (!isDrawing) return;
+                    if (!isDrawing || !originalCropImage) return;
                     const rect = cropCanvas.getBoundingClientRect();
                     const currentX = e.clientX - rect.left;
                     const currentY = e.clientY - rect.top;
@@ -449,7 +686,7 @@
             if (cropBtn) {
                 cropBtn.addEventListener('click', () => {
                     if (!cropRect || !originalCropImage) {
-                        alert('Please draw a crop area on an uploaded image.');
+                        showStatus('cropStatus', 'Please draw a crop area on an uploaded image.', 'error');
                         return;
                     }
                     const scale = originalCropImage.width / cropCanvas.width;
@@ -468,6 +705,7 @@
                     const resetCrop = document.getElementById('resetCrop');
                     if (downloadCrop) downloadCrop.style.display = 'inline-block';
                     if (resetCrop) resetCrop.style.display = 'inline-block';
+                    showStatus('cropStatus', 'Image cropped successfully!', 'success');
                 });
             } else {
                 console.error('Element with ID "cropBtn" not found.');
@@ -484,6 +722,7 @@
                         const resetCropBtn = document.getElementById('resetCrop');
                         if (downloadCrop) downloadCrop.style.display = 'none';
                         if (resetCropBtn) resetCropBtn.style.display = 'none';
+                        showStatus('cropStatus', 'Crop reset to original image.', 'success');
                     }
                 });
             } else {
@@ -499,8 +738,9 @@
                         link.href = croppedImage.toDataURL('image/png');
                         link.click();
                         URL.revokeObjectURL(link.href);
+                        showStatus('cropStatus', 'Download started!', 'success');
                     } else {
-                        alert('No cropped image to download.');
+                        showStatus('cropStatus', 'No cropped image to download.', 'error');
                     }
                 });
             } else {
@@ -513,7 +753,7 @@
                 resizeUpload.addEventListener('change', async (e) => {
                     const file = e.target.files[0];
                     if (!file || !file.type.match(/image\/(png|jpeg|jpg|webp|bmp|gif|tiff|tif|heic|heif)/)) {
-                        alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).');
+                        showStatus('resizeStatus', 'Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).', 'error');
                         return;
                     }
                     try {
@@ -523,8 +763,9 @@
                         const resetResize = document.getElementById('resetResize');
                         if (downloadResize) downloadResize.style.display = 'none';
                         if (resetResize) resetResize.style.display = 'none';
+                        showStatus('resizeStatus', 'Image loaded successfully! Enter dimensions to resize.', 'success');
                     } catch (err) {
-                        alert('Error loading image: ' + err.message);
+                        showStatus('resizeStatus', 'Error loading image: ' + err.message, 'error');
                     }
                 });
             } else {
@@ -535,13 +776,13 @@
             if (resizeBtn) {
                 resizeBtn.addEventListener('click', () => {
                     if (!originalResizeImage) {
-                        alert('Please upload an image first.');
+                        showStatus('resizeStatus', 'Please upload an image first.', 'error');
                         return;
                     }
                     const tw = parseInt(document.getElementById('resizeWidth')?.value);
                     const th = parseInt(document.getElementById('resizeHeight')?.value);
                     if (isNaN(tw) || isNaN(th) || tw <= 0 || th <= 0) {
-                        alert('Please enter valid width and height.');
+                        showStatus('resizeStatus', 'Please enter valid width and height.', 'error');
                         return;
                     }
                     const canvas = document.createElement('canvas');
@@ -555,6 +796,7 @@
                     const resetResize = document.getElementById('resetResize');
                     if (downloadResize) downloadResize.style.display = 'inline-block';
                     if (resetResize) resetResize.style.display = 'inline-block';
+                    showStatus('resizeStatus', 'Image resized successfully!', 'success');
                 });
             } else {
                 console.error('Element with ID "resizeBtn" not found.');
@@ -570,6 +812,7 @@
                         const resetResizeBtn = document.getElementById('resetResize');
                         if (downloadResize) downloadResize.style.display = 'none';
                         if (resetResizeBtn) resetResizeBtn.style.display = 'none';
+                        showStatus('resizeStatus', 'Reset to original image.', 'success');
                     }
                 });
             } else {
@@ -585,8 +828,9 @@
                         link.href = resizedImage.toDataURL('image/png');
                         link.click();
                         URL.revokeObjectURL(link.href);
+                        showStatus('resizeStatus', 'Download started!', 'success');
                     } else {
-                        alert('No resized image to download.');
+                        showStatus('resizeStatus', 'No resized image to download.', 'error');
                     }
                 });
             } else {
@@ -599,7 +843,7 @@
                 convertUpload.addEventListener('change', async (e) => {
                     const file = e.target.files[0];
                     if (!file || !file.type.match(/image\/(png|jpeg|jpg|webp|bmp|gif|tiff|tif)/)) {
-                        alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF).');
+                        showStatus('convertStatus', 'Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF).', 'error');
                         return;
                     }
                     try {
@@ -607,8 +851,9 @@
                         drawImageOnCanvas(img, 'convertCanvas');
                         const convertLoading = document.getElementById('convertLoading');
                         if (convertLoading) convertLoading.style.display = 'none';
+                        showStatus('convertStatus', 'Image loaded successfully! Select output format.', 'success');
                     } catch (err) {
-                        alert('Error loading image: ' + err.message);
+                        showStatus('convertStatus', 'Error loading image: ' + err.message, 'error');
                     }
                 });
             } else {
@@ -626,10 +871,11 @@
                         return;
                     }
                     if (!fileInput.files[0]) {
-                        alert('Please upload an image first.');
+                        showStatus('convertStatus', 'Please upload an image first.', 'error');
                         return;
                     }
                     loading.style.display = 'block';
+                    showStatus('convertStatus', 'Converting image...', 'success');
                     try {
                         const img = await loadImage(fileInput.files[0]);
                         const canvas = document.createElement('canvas');
@@ -638,6 +884,12 @@
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0);
                         const link = document.createElement('a');
+                        
+                        // Check if image-js is available for special formats
+                        if ((outputFormat.value === 'tiff' || outputFormat.value === 'avif') && !window.imageJS) {
+                            throw new Error(`${outputFormat.value.toUpperCase()} conversion requires image-js library which is not available`);
+                        }
+                        
                         if (outputFormat.value === 'tiff') {
                             const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
                             const image = await imageJS.Image.load(pngBlob);
@@ -658,16 +910,17 @@
                         }
                         link.click();
                         URL.revokeObjectURL(link.href);
+                        showStatus('convertStatus', 'Conversion complete! Download started.', 'success');
                     } catch (err) {
-                        alert('Error converting image: ' + err.message);
+                        showStatus('convertStatus', 'Error converting image: ' + err.message, 'error');
                     } finally {
                         loading.style.display = 'none';
-                        }
-                    });
-                } else {
-                    console.error('Element with ID "convertBtn" not found.');
-                }
-            });
-        </script>
-    </body>
+                    }
+                });
+            } else {
+                console.error('Element with ID "convertBtn" not found.');
+            }
+        });
+    </script>
+</body>
 </html>
