@@ -11,25 +11,25 @@
     <meta property="og:title" content="Free Image Toolkit - Crop, Resize, Convert, Remove Background">
     <meta property="og:description" content="Easily crop, resize, convert, and remove backgrounds from images in multiple formats. Free, fast, and no signup required.">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="[invalid url, do not cite]
-    <meta property="og:url" content="[invalid url, do not cite]
+    <meta property="og:image" content="https://free-image-toolkit.com/images/og-image.jpg">
+    <meta property="og:url" content="https://free-image-toolkit.com">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Free Image Toolkit - Crop, Resize, Convert, Remove Background">
     <meta name="twitter:description" content="Easily crop, resize, convert, and remove backgrounds from images. Free, fast, and secure with no signup required.">
-    <meta name="twitter:image" content="[invalid url, do not cite]
+    <meta name="twitter:image" content="https://free-image-toolkit.com/images/twitter-image.jpg">
     <title>Free Image Toolkit - Crop, Resize, Convert, Remove Background</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="canonical" href="[invalid url, do not cite]
-    <script src="[invalid url, do not cite] crossorigin="anonymous" onerror="alert('Failed to load image-js library. Please try again later.');"></script>
-    <script src="[invalid url, do not cite] crossorigin="anonymous" onerror="alert('Failed to load libheif-js library. Please try again later.');"></script>
-    <script src="[invalid url, do not cite] crossorigin="anonymous" onerror="alert('Failed to load ONNX Runtime. Please try again later.');"></script>
-    <script src="[invalid url, do not cite] crossorigin="anonymous" onerror="alert('Failed to load background removal library. Please try again later.');"></script>
+    <link rel="canonical" href="https://free-image-toolkit.com">
+    <script src="https://unpkg.com/image-js@0.35.0/dist/image.min.js" crossorigin="anonymous" onerror="console.error('Failed to load image-js library.');"></script>
+    <script src="https://unpkg.com/libheif-js@1.17.0/libheif.js" crossorigin="anonymous" onerror="console.error('Failed to load libheif-js library.');"></script>
+    <script src="https://unpkg.com/onnxruntime-web@1.20.0-dev.20240924-cfa45df6b5/dist/ort.min.js" crossorigin="anonymous" onerror="console.error('Failed to load ONNX Runtime.');"></script>
+    <script src="https://unpkg.com/@imgly/background-removal@1.6.0/dist/index.umd.min.js" crossorigin="anonymous" onerror="console.error('Failed to load background removal library.');"></script>
     <script type="application/ld+json">
     {
-        "@context": "[invalid url, do not cite]
+        "@context": "https://schema.org",
         "@type": "WebSite",
         "name": "Free Image Toolkit",
-        "url": "[invalid url, do not cite]
+        "url": "https://free-image-toolkit.com",
         "description": "Free tool to crop, resize, convert, and remove backgrounds from images in PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC, or AVIF."
     }
     </script>
@@ -130,7 +130,7 @@
         <button class="active-tab" onclick="switchTab('crop')">Crop</button>
         <button onclick="switchTab('resize')">Resize</button>
         <button onclick="switchTab('convert')">Convert</button>
-        <button onclick="switchTab Rice()">Remove Background</button>
+        <button onclick="switchTab('removebg')">Remove Background</button>
     </div>
 
     <!-- Crop Tool -->
@@ -138,7 +138,7 @@
         <h2>Image Cropper</h2>
         <p><i>Draw a rectangle on the image to crop it.</i></p>
         <div class="drag-drop-area" id="cropDragArea">Drag your picture here or click to browse</div>
-        <input type="file" id="cropUpload" accept="image/*,.heic,.heif,.tiff,.tif"></input>
+        <input type="file" id="cropUpload" accept="image/*,.heic,.heif,.tiff,.tif" style="display: none;" />
         <canvas id="cropCanvas"></canvas>
         <button id="cropBtn">Crop Image</button>
         <button id="resetCrop" style="display: none;">Reset</button>
@@ -150,7 +150,7 @@
         <h2>Image Resizer</h2>
         <p><i>Resize your image to the specified dimensions. The image will be stretched or squashed to fit without padding.</i></p>
         <div class="drag-drop-area" id="resizeDragArea">Drag your picture here or click to browse</div>
-        <input type="file" id="resizeUploadcapsize="image/*,.heic,.heif,.tiff,.tif"></input>
+        <input type="file" id="resizeUpload" accept="image/*,.heic,.heif,.tiff,.tif" style="display: none;" />
         <div class="resize-controls">
             <input type="number" id="resizeWidth" min="1" placeholder="Width (px)">
             <input type="number" id="resizeHeight" min="1" placeholder="Height (px)">
@@ -158,7 +158,7 @@
         <canvas id="resizeCanvas"></canvas>
         <button id="resizeBtn">Resize Image</button>
         <button id="resetResize" style="display: none;">Reset</button>
-        <button id="downloadResize" style="display: none;">Download Image</button>
+        <button id="downloadResize" style="display: none;">Download</button>
     </div>
 
     <!-- Image Converter -->
@@ -166,7 +166,7 @@
         <h2>Image Converter</h2>
         <p><i>Convert your image to a different format. Processing may take a few seconds.</i></p>
         <div class="drag-drop-area" id="convertDragArea">Drag your picture here or click to browse</div>
-        <input type="file" id="convertUpload" accept="image/*,.heic,.heif,.tiff,.tif"></input>
+        <input type="file" id="convertUpload" accept="image/*,.heic,.heif,.tiff,.tif" style="display: none;" />
         <canvas id="convertCanvas"></canvas>
         <div id="convertLoading" class="loading">Processing... (Please wait)</div>
         <select id="outputFormat">
@@ -187,7 +187,7 @@
         <h2>Remove Background</h2>
         <p><i>Remove the background from your image. Note: Results may vary depending on image content.</i></p>
         <div class="drag-drop-area" id="removebgDragArea">Drag your picture here or click to browse</div>
-        <input type="file" id="removebgUpload" accept="image/*,.heic,.heif"></input>
+        <input type="file" id="removebgUpload" accept="image/*,.heic,.heif" style="display: none;" />
         <img id="removebgOriginal" style="display: none;" alt="Original Image" />
         <canvas id="removebgCanvas"></canvas>
         <div id="removebgLoading" class="loading">Processing... (Please wait)</div>
@@ -201,13 +201,13 @@
     <div class="sister-tools-section">
         <h2>Explore Our Other Free Tools</h2>
         <p>All our tools process your data entirely in your browser, ensuring your files are never stored or uploaded, keeping your privacy completely secure.</p>
-        <a href="[invalid url, do not cite] target="_blank" rel="noopener noreferrer" class="sister-site-btn">
+        <a href="https://free-ean-maker.com" target="_blank" rel="noopener noreferrer" class="sister-site-btn">
             Free EAN Barcode Generator
         </a>
-        <a href="[invalid url, do not cite] target="_blank" rel="noopener noreferrer" class="sister-site-btn">
+        <a href="https://free-qr-make.com" target="_blank" rel="noopener noreferrer" class="sister-site-btn">
             Free QR Code Generator
         </a>
-        <a href="[invalid url, do not cite] target="_blank" rel="noopener noreferrer" class="sister-site-btn">
+        <a href="https://free-video-toolkit.com" target="_blank" rel="noopener noreferrer" class="sister-site-btn">
             Free Video Toolkit
         </a>
     </div>
@@ -216,7 +216,7 @@
         Free Image Toolkit. Made with ❤️
     </footer>
 
-    <!-- Analytics Script (Moved to End of Body) -->
+    <!-- Analytics Script -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-C4SSJKXG4Z"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -239,453 +239,579 @@
         let removebgBlob = null;
         let removedBgBlob = null;
 
-        // ===== TAB SWITCHING =====
-        function switchTab(tabName) {
-            const currentTab = document.querySelector('.tool-section.active');
-            const currentTabId = currentTab ? currentTab.id : null;
+        // ===== MAIN SCRIPT =====
+        document.addEventListener('DOMContentLoaded', () => {
+            // ===== TAB SWITCHING =====
+            function switchTab(tabName) {
+                const currentTab = document.querySelector('.tool-section.active');
+                const currentTabId = currentTab ? currentTab.id : null;
 
-            if (currentTabId) {
-                if (currentTabId === 'crop') {
-                    const canvas = document.getElementById('cropCanvas');
-                    const ctx = canvas.getContext('2d');
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    document.getElementById('cropUpload').value = '';
-                    document.getElementById('downloadCrop').style.display = 'none';
-                    document.getElementById('resetCrop').style.display = 'none';
-                    originalCropImage = null;
-                    croppedImage = null;
-                    cropRect = null;
-                } else if (currentTabId === 'resize') {
-                    const canvas = document.getElementById('resizeCanvas');
-                    const ctx = canvas.getContext('2d');
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    document.getElementById('resizeUpload').value = '';
-                    document.getElementById('resizeWidth').value = '';
-                    document.getElementById('resizeHeight').value = '';
-                    document.getElementById('downloadResize').style.display = 'none';
-                    document.getElementById('resetResize').style.display = 'none';
-                    originalResizeImage = null;
-                    resizedImage = null;
-                } else if (currentTabId === 'convert') {
-                    const canvas = document.getElementById('convertCanvas');
-                    const ctx = canvas.getContext('2d');
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    document.getElementById('convertUpload').value = '';
-                    document.getElementById('convertLoading').style.display = 'none';
-                } else if (currentTabId === 'removebg') {
-                    const canvas = document.getElementById('removebgCanvas');
-                    const ctx = canvas.getContext('2d');
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    document.getElementById('removebgUpload').value = '';
-                    document.getElementById('removebgOriginal').style.display = 'none';
-                    document.getElementById('downloadRemovebg').style.display = 'none';
-                    document.getElementById('removebgLoading').style.display = 'none';
-                    if (removebgBlob) URL.revokeObjectURL(document.getElementById('removebgOriginal').src);
-                    removebgBlob = null;
-                    removedBgBlob = null;
+                if (currentTabId) {
+                    if (currentTabId === 'crop') {
+                        const canvas = document.getElementById('cropCanvas');
+                        if (canvas) {
+                            const ctx = canvas.getContext('2d');
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        }
+                        const cropUpload = document.getElementById('cropUpload');
+                        if (cropUpload) cropUpload.value = '';
+                        const downloadCrop = document.getElementById('downloadCrop');
+                        const resetCrop = document.getElementById('resetCrop');
+                        if (downloadCrop) downloadCrop.style.display = 'none';
+                        if (resetCrop) resetCrop.style.display = 'none';
+                        originalCropImage = null;
+                        croppedImage = null;
+                        cropRect = null;
+                    } else if (currentTabId === 'resize') {
+                        const canvas = document.getElementById('resizeCanvas');
+                        if (canvas) {
+                            const ctx = canvas.getContext('2d');
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        }
+                        const resizeUpload = document.getElementById('resizeUpload');
+                        const resizeWidth = document.getElementById('resizeWidth');
+                        const resizeHeight = document.getElementById('resizeHeight');
+                        if (resizeUpload) resizeUpload.value = '';
+                        if (resizeWidth) resizeWidth.value = '';
+                        if (resizeHeight) resizeHeight.value = '';
+                        const downloadResize = document.getElementById('downloadResize');
+                        const resetResize = document.getElementById('resetResize');
+                        if (downloadResize) downloadResize.style.display = 'none';
+                        if (resetResize) resetResize.style.display = 'none';
+                        originalResizeImage = null;
+                        resizedImage = null;
+                    } else if (currentTabId === 'convert') {
+                        const canvas = document.getElementById('convertCanvas');
+                        if (canvas) {
+                            const ctx = canvas.getContext('2d');
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        }
+                        const convertUpload = document.getElementById('convertUpload');
+                        const convertLoading = document.getElementById('convertLoading');
+                        if (convertUpload) convertUpload.value = '';
+                        if (convertLoading) convertLoading.style.display = 'none';
+                    } else if (currentTabId === 'removebg') {
+                        const canvas = document.getElementById('removebgCanvas');
+                        if (canvas) {
+                            const ctx = canvas.getContext('2d');
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        }
+                        const removebgUpload = document.getElementById('removebgUpload');
+                        const removebgOriginal = document.getElementById('removebgOriginal');
+                        const downloadRemovebg = document.getElementById('downloadRemovebg');
+                        const removebgLoading = document.getElementById('removebgLoading');
+                        if (removebgUpload) removebgUpload.value = '';
+                        if (removebgOriginal) removebgOriginal.style.display = 'none';
+                        if (downloadRemovebg) downloadRemovebg.style.display = 'none';
+                        if (removebgLoading) removebgLoading.style.display = 'none';
+                        if (removebgBlob && removebgOriginal) URL.revokeObjectURL(removebgOriginal.src);
+                        removebgBlob = null;
+                        removedBgBlob = null;
+                    }
                 }
+
+                document.querySelectorAll('.tool-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.querySelectorAll('.tab-buttons button').forEach(btn => {
+                    btn.classList.remove('active-tab');
+                });
+                const tabSection = document.getElementById(tabName);
+                const tabButton = document.querySelector(`button[onclick="switchTab('${tabName}')"]`);
+                if (tabSection) tabSection.classList.add('active');
+                if (tabButton) tabButton.classList.add('active-tab');
             }
 
-            document.querySelectorAll('.tool-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            document.querySelectorAll('.tab-buttons button').forEach(btn => {
-                btn.classList.remove('active-tab');
-            });
-            document.getElementById(tabName).classList.add('active');
-            document.querySelector(`button[onclick="switchTab('${tabName}')"]`).classList.add('active-tab');
-        }
-
-        // ===== DRAG AND DROP SETUP =====
-        function setupDragDrop(dragAreaId, inputId) {
-            const dragArea = document.getElementById(dragAreaId);
-            const fileInput = document.getElementById(inputId);
-
-            dragArea.addEventListener('click', () => fileInput.click());
-            dragArea.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                dragArea.classList.add('drag-over');
-            });
-            dragArea.addEventListener('dragenter', (e) => {
-                e.preventDefault();
-                dragArea.classList.add('drag-over');
-            });
-            dragArea.addEventListener('dragleave', () => {
-                dragArea.classList.remove('drag-over');
-            });
-            dragArea.addEventListener('drop', (e) => {
-                e.preventDefault();
-                dragArea.classList.remove('drag-over');
-                const files = e.dataTransfer.files;
-                if (files.length > 0 && (files[0].type.startsWith('image/') || ['image/heic', 'image/heif', 'image/tiff', 'image/tif'].includes(files[0].type))) {
-                    fileInput.files = files;
-                    fileInput.dispatchEvent(new Event('change'));
-                } else {
-                    alert('Please drop a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).');
-                }
-            });
-        }
-
-        setupDragDrop('cropDragArea', 'cropUpload');
-        setupDragDrop('resizeDragArea', 'resizeUpload');
-        setupDragDrop('convertDragArea', 'convertUpload');
-        setupDragDrop('removebgDragArea', 'removebgUpload');
-
-        // ===== IMAGE LOADING HELPER =====
-        async function loadImage(file) {
-            return new Promise((resolve, reject) => {
-                const fileType = file.type.toLowerCase();
-                if (!fileType.startsWith('image/') && !['image/heic', 'image/heif', 'image/tiff', 'image/tif'].includes(fileType)) {
-                    reject(new Error('Invalid file type. Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).'));
+            // ===== DRAG AND DROP SETUP =====
+            function setupDragDrop(dragAreaId, inputId) {
+                const dragArea = document.getElementById(dragAreaId);
+                const fileInput = document.getElementById(inputId);
+                if (!dragArea || !fileInput) {
+                    console.error(`Drag area (${dragAreaId}) or file input (${inputId}) not found.`);
                     return;
                 }
-                if (fileType === 'image/heic' || fileType === 'image/heif') {
-                    const reader = new FileReader();
-                    reader.onload = async (e) => {
-                        try {
-                            const libheif = window.libheif;
-                            const heifBuffer = new Uint8Array(e.target.result);
-                            const decoder = new libheif.HeifDecoder();
-                            const data = decoder.decode(heifBuffer);
-                            if (!data || data.length === 0) throw new Error('Invalid HEIC file');
-                            const imgData = data[0].display(data[0], { quality: 1 });
-                            const blob = await new Promise(resolveBlob => imgData.toBlob(resolveBlob, 'image/png'));
+
+                dragArea.addEventListener('click', () => fileInput.click());
+                dragArea.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    dragArea.classList.add('drag-over');
+                });
+                dragArea.addEventListener('dragenter', (e) => {
+                    e.preventDefault();
+                    dragArea.classList.add('drag-over');
+                });
+                dragArea.addEventListener('dragleave', () => {
+                    dragArea.classList.remove('drag-over');
+                });
+                dragArea.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dragArea.classList.remove('drag-over');
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0 && (files[0].type.startsWith('image/') || ['image/heic', 'image/heif', 'image/tiff', 'image/tif'].includes(files[0].type))) {
+                        fileInput.files = files;
+                        fileInput.dispatchEvent(new Event('change'));
+                    } else {
+                        alert('Please drop a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).');
+                    }
+                });
+            }
+
+            setupDragDrop('cropDragArea', 'cropUpload');
+            setupDragDrop('resizeDragArea', 'resizeUpload');
+            setupDragDrop('convertDragArea', 'convertUpload');
+            setupDragDrop('removebgDragArea', 'removebgUpload');
+
+            // ===== IMAGE LOADING HELPER =====
+            async function loadImage(file) {
+                return new Promise((resolve, reject) => {
+                    const fileType = file.type.toLowerCase();
+                    if (!fileType.startsWith('image/') && !['image/heic', 'image/heif', 'image/tiff', 'image/tif'].includes(fileType)) {
+                        reject(new Error('Invalid file type. Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).'));
+                        return;
+                    }
+                    if (fileType === 'image/heic' || fileType === 'image/heif') {
+                        const reader = new FileReader();
+                        reader.onload = async (e) => {
+                            try {
+                                const libheif = window.libheif;
+                                if (!libheif) throw new Error('libheif-js not loaded');
+                                const heifBuffer = new Uint8Array(e.target.result);
+                                const decoder = new libheif.HeifDecoder();
+                                const data = decoder.decode(heifBuffer);
+                                if (!data || data.length === 0) throw new Error('Invalid HEIC file');
+                                const imgData = data[0].display(data[0], { quality: 1 });
+                                const blob = await new Promise(resolveBlob => imgData.toBlob(resolveBlob, 'image/png'));
+                                const img = new Image();
+                                img.onload = () => resolve(img);
+                                img.onerror = () => reject(new Error('Failed to load HEIC image'));
+                                img.src = URL.createObjectURL(blob);
+                            } catch (err) {
+                                reject(new Error('Error processing HEIC image: ' + err.message));
+                            }
+                        };
+                        reader.onerror = () => reject(new Error('Failed to read HEIC file'));
+                        reader.readAsArrayBuffer(file);
+                    } else if (fileType === 'image/tiff' || fileType === 'image/tif') {
+                        const reader = new FileReader();
+                        reader.onload = async (e) => {
+                            try {
+                                const image = await imageJS.Image.load(e.target.result);
+                                const canvas = document.createElement('canvas');
+                                canvas.width = image.width;
+                                canvas.height = image.height;
+                                canvas.getContext('2d').drawImage(image.getCanvas(), 0, 0);
+                                const img = new Image();
+                                img.onload = () => resolve(img);
+                                img.onerror = () => reject(new Error('Failed to load TIFF image'));
+                                img.src = canvas.toDataURL('image/png');
+                            } catch (err) {
+                                reject(new Error('Error processing TIFF image: ' + err.message));
+                            }
+                        };
+                        reader.onerror = () => reject(new Error('Failed to read TIFF file'));
+                        reader.readAsArrayBuffer(file);
+                    } else {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
                             const img = new Image();
                             img.onload = () => resolve(img);
-                            img.onerror = () => reject(new Error('Failed to load HEIC image'));
-                            img.src = URL.createObjectURL(blob);
-                        } catch (err) {
-                            reject(new Error('Error processing HEIC image: ' + err.message));
-                        }
-                    };
-                    reader.onerror = () => reject(new Error('Failed to read HEIC file'));
-                    reader.readAsArrayBuffer(file);
-                } else if (fileType === 'image/tiff' || fileType === 'image/tif') {
-                    const reader = new FileReader();
-                    reader.onload = async (e) => {
-                        try {
-                            const image = await imageJS.Image.load(e.target.result);
-                            const canvas = document.createElement('canvas');
-                            canvas.width = image.width;
-                            canvas.height = image.height;
-                            canvas.getContext('2d').drawImage(image.getCanvas(), 0, 0);
-                            const img = new Image();
-                            img.onload = () => resolve(img);
-                            img.onerror = () => reject(new Error('Failed to load TIFF image'));
-                            img.src = canvas.toDataURL('image/png');
-                        } catch (err) {
-                            reject(new Error('Error processing TIFF image: ' + err.message));
-                        }
-                    };
-                    reader.onerror = () => reject(new Error('Failed to read TIFF file'));
-                    reader.readAsArrayBuffer(file);
-                } else {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const img = new Image();
-                        img.onload = () => resolve(img);
-                        img.onerror = () => reject(new Error('Failed to load image'));
-                        img.src = e.target.result;
-                    };
-                    reader.onerror = () => reject(new Error('Failed to read image file'));
-                    reader.readAsDataURL(file);
+                            img.onerror = () => reject(new Error('Failed to load image'));
+                            img.src = e.target.result;
+                        };
+                        reader.onerror = () => reject(new Error('Failed to read image file'));
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            // ===== DRAW IMAGE ON CANVAS =====
+            function drawImageOnCanvas(image, canvasId, isImageJS = false) {
+                const canvas = document.getElementById(canvasId);
+                if (!canvas) {
+                    console.error(`Canvas with ID "${canvasId}" not found.`);
+                    return;
                 }
-            });
-        }
-
-        // ===== DRAW IMAGE ON CANVAS =====
-        function drawImageOnCanvas(image, canvasId, isImageJS = false) {
-            const canvas = document.getElementById(canvasId);
-            const ctx = canvas.getContext('2d');
-            const maxWidth = 400;
-            const scale = Math.min(maxWidth / image.width, 1);
-            canvas.width = image.width * scale;
-            canvas.height = image.height * scale;
-            if (isImageJS) {
-                ctx.drawImage(image.getCanvas(), 0, 0, canvas.width, canvas.height);
-            } else {
-                ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-            }
-        }
-
-        // ===== CROP FUNCTIONALITY =====
-        document.getElementById('cropUpload').addEventListener('change', async function(e) {
-            const file = e.target.files[0];
-            if (!file || !file.type.match(/image\/(png|jpeg|webp|bmp|gif|tiff|tif|heic|heif)/)) {
-                alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).');
-                return;
-            }
-            try {
-                originalCropImage = await loadImage(file);
-                drawImageOnCanvas(originalCropImage, 'cropCanvas');
-                document.getElementById('downloadCrop').style.display = 'none';
-                document.getElementById('resetCrop').style.display = 'none';
-            } catch (err) {
-                alert('Error loading image: ' + err.message);
-            }
-        });
-
-        const cropCanvas = document.getElementById('cropCanvas');
-        cropCanvas.addEventListener('mousedown', startDrawing);
-        cropCanvas.addEventListener('mousemove', drawCropRect);
-        cropCanvas.addEventListener('mouseup', stopDrawing);
-
-        function startDrawing(e) {
-            isDrawing = true;
-            const rect = cropCanvas.getBoundingClientRect();
-            cropStart = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-        }
-
-        function drawCropRect(e) {
-            if (!isDrawing) return;
-            const rect = cropCanvas.getBoundingClientRect();
-            const currentX = e.clientX - rect.left;
-            const currentY = e.clientY - rect.top;
-            cropRect = {
-                x: Math.min(cropStart.x, currentX),
-                y: Math.min(cropStart.y, currentY),
-                width: Math.abs(currentX - cropStart.x),
-                height: Math.abs(currentY - cropStart.y),
-            };
-            const ctx = cropCanvas.getContext('2d');
-            ctx.drawImage(originalCropImage, 0, 0, cropCanvas.width, cropCanvas.height);
-            ctx.strokeStyle = 'red';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(cropRect.x, cropRect.y, cropRect.width, cropRect.height);
-        }
-
-        function stopDrawing() {
-            isDrawing = false;
-        }
-
-        document.getElementById('cropBtn').addEventListener('click', () => {
-            if (!cropRect) {
-                alert('Please draw a crop area first.');
-                return;
-            }
-            const scale = originalCropImage.width / cropCanvas.width;
-            const sx = cropRect.x * scale;
-            const sy = cropRect.y * scale;
-            const sWidth = cropRect.width * scale;
-            const sHeight = cropRect.height * scale;
-            const croppedCanvas = document.createElement('canvas');
-            croppedCanvas.width = sWidth;
-            croppedCanvas.height = sHeight;
-            const croppedCtx = croppedCanvas.getContext('2d');
-            croppedCtx.drawImage(originalCropImage, sx, sy, sWidth, sHeight, 0, 0, sWidth, sHeight);
-            croppedImage = croppedCanvas;
-            drawImageOnCanvas(croppedCanvas, 'cropCanvas');
-            document.getElementById('downloadCrop').style.display = 'inline-block';
-            document.getElementById('resetCrop').style.display = 'inline-block';
-        });
-
-        document.getElementById('resetCrop').addEventListener('click', () => {
-            if (originalCropImage) {
-                drawImageOnCanvas(originalCropImage, 'cropCanvas');
-                croppedImage = null;
-                document.getElementById('downloadCrop').style.display = 'none';
-                document.getElementById('resetCrop').style.display = 'none';
-                cropRect = null;
-            }
-        });
-
-        document.getElementById('downloadCrop').addEventListener('click', () => {
-            if (croppedImage) {
-                const link = document.createElement('a');
-                link.download = 'cropped.png';
-                link.href = croppedImage.toDataURL('image/png');
-                link.click();
-            } else {
-                alert('No image to download.');
-            }
-        });
-
-        // ===== RESIZE FUNCTIONALITY =====
-        document.getElementById('resizeUpload').addEventListener('change', async function(e) {
-            const file = e.target.files[0];
-            if (!file || !file.type.match(/image\/(png|jpeg|webp|bmp|gif|tiff|tif|heic|heif)/)) {
-                alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).');
-                return;
-            }
-            try {
-                originalResizeImage = await loadImage(file);
-                drawImageOnCanvas(originalResizeImage, 'resizeCanvas');
-                document.getElementById('downloadResize').style.display = 'none';
-                document.getElementById('resetResize').style.display = 'none';
-            } catch (err) {
-                alert('Error loading image: ' + err.message);
-            }
-        });
-
-        document.getElementById('resizeBtn').addEventListener('click', () => {
-            if (!originalResizeImage) {
-                alert('Please upload an image first.');
-                return;
-            }
-            const tw = parseInt(document.getElementById('resizeWidth').value);
-            const th = parseInt(document.getElementById('resizeHeight').value);
-            if (isNaN(tw) || isNaN(th) || tw <= 0 || th <= 0) {
-                alert('Please enter valid width and height.');
-                return;
-            }
-            const canvas = document.createElement('canvas');
-            canvas.width = tw;
-            canvas.height = th;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(originalResizeImage, 0, 0, originalResizeImage.width, originalResizeImage.height, 0, 0, tw, th);
-            resizedImage = canvas;
-            drawImageOnCanvas(resizedImage, 'resizeCanvas');
-            document.getElementById('downloadResize').style.display = 'inline-block';
-            document.getElementById('resetResize').style.display = 'inline-block';
-        });
-
-        document.getElementById('resetResize').addEventListener('click', () => {
-            if (originalResizeImage) {
-                drawImageOnCanvas(originalResizeImage, 'resizeCanvas');
-                resizedImage = null;
-                document.getElementById('downloadResize').style.display = 'none';
-                document.getElementById('resetResize').style.display = 'none';
-            }
-        });
-
-        document.getElementById('downloadResize').addEventListener('click', () => {
-            if (resizedImage) {
-                const link = document.createElement('a');
-                link.download = 'resized.png';
-                link.href = resizedImage.toDataURL('image/png');
-                link.click();
-            } else {
-                alert('No image to download.');
-            }
-        });
-
-        // ===== IMAGE CONVERTER =====
-        document.getElementById('convertUpload').addEventListener('change', async function(e) {
-            const file = e.target.files[0];
-            if (!file || !file.type.match(/image\/(png|jpeg|jpg|webp|bmp|gif|tiff|tif|heic|heif)/)) {
-                alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).');
-                return;
-            }
-            try {
-                const img = await loadImage(file);
-                drawImageOnCanvas(img, 'convertCanvas');
-                document.getElementById('convertLoading').style.display = 'none';
-            } catch (err) {
-                alert('Error loading image: ' + err.message);
-            }
-        });
-
-        document.getElementById('convertBtn').addEventListener('click', async () => {
-            const fileInput = document.getElementById('convertUpload');
-            const outputFormat = document.getElementById('outputFormat').value;
-            const loading = document.getElementById('convertLoading');
-
-            if (!fileInput.files[0]) {
-                alert('Upload an image first!');
-                return;
-            }
-
-            loading.style.display = 'block';
-            try {
-                const img = await loadImage(fileInput.files[0]);
-                const canvas = document.createElement('canvas');
-                canvas.width = img.width;
-                canvas.height = img.height;
                 const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
-                const link = document.createElement('a');
-                if (outputFormat === 'heic') {
-                    const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-                    const image = await imageJS.Image.load(pngBlob);
-                    const heifBuffer = await image.toBuffer('heic');
-                    const blob = new Blob([heifBuffer], { type: 'image/heic' });
-                    link.href = URL.createObjectURL(blob);
-                    link.download = 'converted.heic';
-                } else if (outputFormat === 'tiff') {
-                    const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-                    const image = await imageJS.Image.load(pngBlob);
-                    const tiffBuffer = await image.toBuffer('tiff');
-                    const blob = new Blob([tiffBuffer], { type: 'image/tiff' });
-                    link.href = URL.createObjectURL(blob);
-                    link.download = 'converted.tiff';
-                } else if (outputFormat === 'avif') {
-                    const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-                    const image = await imageJS.Image.load(pngBlob);
-                    const avifBuffer = await image.toBuffer('avif');
-                    const blob = new Blob([avifBuffer], { type: 'image/avif' });
-                    link.href = URL.createObjectURL(blob);
-                    link.download = 'converted.avif';
+                const maxWidth = 400;
+                const scale = Math.min(maxWidth / image.width, 1);
+                canvas.width = image.width * scale;
+                canvas.height = image.height * scale;
+                if (isImageJS) {
+                    ctx.drawImage(image.getCanvas(), 0, 0, canvas.width, canvas.height);
                 } else {
-                    link.href = canvas.toDataURL(`image/${outputFormat}`, outputFormat === 'jpeg' ? 0.9 : 1.0);
-                    link.download = `converted.${outputFormat}`;
+                    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
                 }
-                link.click();
-            } catch (err) {
-                alert('Error converting image: ' + err.message);
-            } finally {
-                loading.style.display = 'none';
             }
-        });
 
-        // ===== REMOVE BACKGROUND FUNCTIONALITY =====
-        document.getElementById('removebgUpload').addEventListener('change', async function(e) {
-            const file = e.target.files[0];
-            if (!file || !file.type.match(/image\/(png|jpeg|webp|bmp|gif|heic|heif)/)) {
-                alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, HEIC).');
-                return;
-            }
-            try {
-                const img = await loadImage(file);
-                removebgBlob = file;
-                const originalImg = document.getElementById('removebgOriginal');
-                originalImg.src = URL.createObjectURL(file);
-                originalImg.style.display = 'inline-block';
-                drawImageOnCanvas(img, 'removebgCanvas');
-                document.getElementById('downloadRemovebg').style.display = 'none';
-                document.getElementById('removebgLoading').style.display = 'none';
-                removedBgBlob = null;
-            } catch (err) {
-                alert('Error loading image: ' + err.message);
-            }
-        });
-
-        document.getElementById('removebgBtn').addEventListener('click', async () => {
-            if (!removebgBlob) {
-                alert('Please upload an image first.');
-                return;
-            }
-            const loading = document.getElementById('removebgLoading');
-            loading.style.display = 'block';
-            try {
-                if (!window['@imgly/background-removal'] || !window['@imgly/background-removal'].removeBackground) {
-                    throw new Error('Background removal library not loaded.');
-                }
-                const blob = await window['@imgly/background-removal'].removeBackground(removebgBlob);
-                removedBgBlob = blob;
-                const img = new Image();
-                img.onload = () => {
-                    drawImageOnCanvas(img, 'removebgCanvas');
-                    document.getElementById('downloadRemovebg').style.display = 'inline-block';
-                };
-                img.onerror = () => {
-                    throw new Error('Failed to load processed image');
-                };
-                img.src = URL.createObjectURL(blob);
-            } catch (err) {
-                alert('Error removing background: ' + err.message);
-            } finally {
-                loading.style.display = 'none';
-            }
-        });
-
-        document.getElementById('downloadRemovebg').addEventListener('click', () => {
-            if (removedBgBlob) {
-                const link = document.createElement('a');
-                link.download = 'no-background.png';
-                link.href = URL.createObjectURL(removedBgBlob);
-                link.click();
+            // ===== CROP FUNCTIONALITY =====
+            const cropUpload = document.getElementById('cropUpload');
+            if (cropUpload) {
+                cropUpload.addEventListener('change', async function(e) {
+                    const file = e.target.files[0];
+                    if (!file || !file.type.match(/image\/(png|jpeg|webp|bmp|gif|tiff|tif|heic|heif)/)) {
+                        alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).');
+                        return;
+                    }
+                    try {
+                        originalCropImage = await loadImage(file);
+                        drawImageOnCanvas(originalCropImage, 'cropCanvas');
+                        const downloadCrop = document.getElementById('downloadCrop');
+                        const resetCrop = document.getElementById('resetCrop');
+                        if (downloadCrop) downloadCrop.style.display = 'none';
+                        if (resetCrop) resetCrop.style.display = 'none';
+                    } catch (err) {
+                        alert('Error loading image: ' + err.message);
+                    }
+                });
             } else {
-                alert('No image to download.');
+                console.error('Element with ID "cropUpload" not found.');
+            }
+
+            const cropCanvas = document.getElementById('cropCanvas');
+            if (cropCanvas) {
+                cropCanvas.addEventListener('mousedown', startDrawing);
+                cropCanvas.addEventListener('mousemove', drawCropRect);
+                cropCanvas.addEventListener('mouseup', stopDrawing);
+            } else {
+                console.error('Element with ID "cropCanvas" not found.');
+            }
+
+            function startDrawing(e) {
+                isDrawing = true;
+                const rect = cropCanvas.getBoundingClientRect();
+                cropStart = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+            }
+
+            function drawCropRect(e) {
+                if (!isDrawing) return;
+                const rect = cropCanvas.getBoundingClientRect();
+                const currentX = e.clientX - rect.left;
+                const currentY = e.clientY - rect.top;
+                cropRect = {
+                    x: Math.min(cropStart.x, currentX),
+                    y: Math.min(cropStart.y, currentY),
+                    width: Math.abs(currentX - cropStart.x),
+                    height: Math.abs(currentY - cropStart.y),
+                };
+                const ctx = cropCanvas.getContext('2d');
+                ctx.drawImage(originalCropImage, 0, 0, cropCanvas.width, cropCanvas.height);
+                ctx.strokeStyle = 'red';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(cropRect.x, cropRect.y, cropRect.width, cropRect.height);
+            }
+
+            function stopDrawing() {
+                isDrawing = false;
+            }
+
+            const cropBtn = document.getElementById('cropBtn');
+            if (cropBtn) {
+                cropBtn.addEventListener('click', () => {
+                    if (!cropRect) {
+                        alert('Please draw a crop area first.');
+                        return;
+                    }
+                    const scale = originalCropImage.width / cropCanvas.width;
+                    const sx = cropRect.x * scale;
+                    const sy = cropRect.y * scale;
+                    const sWidth = cropRect.width * scale;
+                    const sHeight = cropRect.height * scale;
+                    const croppedCanvas = document.createElement('canvas');
+                    croppedCanvas.width = sWidth;
+                    croppedCanvas.height = sHeight;
+                    const croppedCtx = croppedCanvas.getContext('2d');
+                    croppedCtx.drawImage(originalCropImage, sx, sy, sWidth, sHeight, 0, 0, sWidth, sHeight);
+                    croppedImage = croppedCanvas;
+                    drawImageOnCanvas(croppedCanvas, 'cropCanvas');
+                    const downloadCrop = document.getElementById('downloadCrop');
+                    const resetCrop = document.getElementById('resetCrop');
+                    if (downloadCrop) downloadCrop.style.display = 'inline-block';
+                    if (resetCrop) resetCrop.style.display = 'inline-block';
+                });
+            } else {
+                console.error('Element with ID "cropBtn" not found.');
+            }
+
+            const resetCrop = document.getElementById('resetCrop');
+            if (resetCrop) {
+                resetCrop.addEventListener('click', () => {
+                    if (originalCropImage) {
+                        drawImageOnCanvas(originalCropImage, 'cropCanvas');
+                        croppedImage = null;
+                        const downloadCrop = document.getElementById('downloadCrop');
+                        const resetCropBtn = document.getElementById('resetCrop');
+                        if (downloadCrop) downloadCrop.style.display = 'none';
+                        if (resetCropBtn) resetCropBtn.style.display = 'none';
+                        cropRect = null;
+                    }
+                });
+            } else {
+                console.error('Element with ID "resetCrop" not found.');
+            }
+
+            const downloadCrop = document.getElementById('downloadCrop');
+            if (downloadCrop) {
+                downloadCrop.addEventListener('click', () => {
+                    if (croppedImage) {
+                        const link = document.createElement('a');
+                        link.download = 'cropped.png';
+                        link.href = croppedImage.toDataURL('image/png');
+                        link.click();
+                    } else {
+                        alert('No image to download.');
+                    }
+                });
+            } else {
+                console.error('Element with ID "downloadCrop" not found.');
+            }
+
+            // ===== RESIZE FUNCTIONALITY =====
+            const resizeUpload = document.getElementById('resizeUpload');
+            if (resizeUpload) {
+                resizeUpload.addEventListener('change', async function(e) {
+                    const file = e.target.files[0];
+                    if (!file || !file.type.match(/image\/(png|jpeg|webp|bmp|gif|tiff|tif|heic|heif)/)) {
+                        alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).');
+                        return;
+                    }
+                    try {
+                        originalResizeImage = await loadImage(file);
+                        drawImageOnCanvas(originalResizeImage, 'resizeCanvas');
+                        const downloadResize = document.getElementById('downloadResize');
+                        const resetResize = document.getElementById('resetResize');
+                        if (downloadResize) downloadResize.style.display = 'none';
+                        if (resetResize) resetResize.style.display = 'none';
+                    } catch (err) {
+                        alert('Error loading image: ' + err.message);
+                    }
+                });
+            } else {
+                console.error('Element with ID "resizeUpload" not found.');
+            }
+
+            const resizeBtn = document.getElementById('resizeBtn');
+            if (resizeBtn) {
+                resizeBtn.addEventListener('click', () => {
+                    if (!originalResizeImage) {
+                        alert('Please upload an image first.');
+                        return;
+                    }
+                    const tw = parseInt(document.getElementById('resizeWidth').value);
+                    const th = parseInt(document.getElementById('resizeHeight').value);
+                    if (isNaN(tw) || isNaN(th) || tw <= 0 || th <= 0) {
+                        alert('Please enter valid width and height.');
+                        return;
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = tw;
+                    canvas.height = th;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(originalResizeImage, 0, 0, originalResizeImage.width, originalResizeImage.height, 0, 0, tw, th);
+                    resizedImage = canvas;
+                    drawImageOnCanvas(resizedImage, 'resizeCanvas');
+                    const downloadResize = document.getElementById('downloadResize');
+                    const resetResize = document.getElementById('resetResize');
+                    if (downloadResize) downloadResize.style.display = 'inline-block';
+                    if (resetResize) resetResize.style.display = 'inline-block';
+                });
+            } else {
+                console.error('Element with ID "resizeBtn" not found.');
+            }
+
+            const resetResize = document.getElementById('resetResize');
+            if (resetResize) {
+                resetResize.addEventListener('click', () => {
+                    if (originalResizeImage) {
+                        drawImageOnCanvas(originalResizeImage, 'resizeCanvas');
+                        resizedImage = null;
+                        const downloadResize = document.getElementById('downloadResize');
+                        const resetResizeBtn = document.getElementById('resetResize');
+                        if (downloadResize) downloadResize.style.display = 'none';
+                        if (resetResizeBtn) resetResizeBtn.style.display = 'none';
+                    }
+                });
+            } else {
+                console.error('Element with ID "resetResize" not found.');
+            }
+
+            const downloadResize = document.getElementById('downloadResize');
+            if (downloadResize) {
+                downloadResize.addEventListener('click', () => {
+                    if (resizedImage) {
+                        const link = document.createElement('a');
+                        link.download = 'resized.png';
+                        link.href = resizedImage.toDataURL('image/png');
+                        link.click();
+                    } else {
+                        alert('No image to download.');
+                    }
+                });
+            } else {
+                console.error('Element with ID "downloadResize" not found.');
+            }
+
+            // ===== IMAGE CONVERTER =====
+            const convertUpload = document.getElementById('convertUpload');
+            if (convertUpload) {
+                convertUpload.addEventListener('change', async function(e) {
+                    const file = e.target.files[0];
+                    if (!file || !file.type.match(/image\/(png|jpeg|jpg|webp|bmp|gif|tiff|tif|heic|heif)/)) {
+                        alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).');
+                        return;
+                    }
+                    try {
+                        const img = await loadImage(file);
+                        drawImageOnCanvas(img, 'convertCanvas');
+                        const convertLoading = document.getElementById('convertLoading');
+                        if (convertLoading) convertLoading.style.display = 'none';
+                    } catch (err) {
+                        alert('Error loading image: ' + err.message);
+                    }
+                });
+            } else {
+                console.error('Element with ID "convertUpload" not found.');
+            }
+
+            const convertBtn = document.getElementById('convertBtn');
+            if (convertBtn) {
+                convertBtn.addEventListener('click', async () => {
+                    const fileInput = document.getElementById('convertUpload');
+                    const outputFormat = document.getElementById('outputFormat');
+                    const loading = document.getElementById('convertLoading');
+                    if (!fileInput || !outputFormat || !loading) {
+                        console.error('Convert tool elements not found.');
+                        return;
+                    }
+                    if (!fileInput.files[0]) {
+                        alert('Please upload an image first.');
+                        return;
+                    }
+
+                    loading.style.display = 'block';
+                    try {
+                        const img = await loadImage(fileInput.files[0]);
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        const link = document.createElement('a');
+                        if (outputFormat.value === 'heic') {
+                            const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                            const image = await imageJS.Image.load(pngBlob);
+                            const heifBuffer = await image.toBuffer('heic');
+                            const blob = new Blob([heifBuffer], { type: 'image/heic' });
+                            link.href = URL.createObjectURL(blob);
+                            link.download = 'converted.heic';
+                        } else if (outputFormat.value === 'tiff') {
+                            const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                            const image = await imageJS.Image.load(pngBlob);
+                            const tiffBuffer = await image.toBuffer('tiff');
+                            const blob = new Blob([tiffBuffer], { type: 'image/tiff' });
+                            link.href = URL.createObjectURL(blob);
+                            link.download = 'converted.tiff';
+                        } else if (outputFormat.value === 'avif') {
+                            const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                            const image = await imageJS.Image.load(pngBlob);
+                            const avifBuffer = await image.toBuffer('avif');
+                            const blob = new Blob([avifBuffer], { type: 'image/avif' });
+                            link.href = URL.createObjectURL(blob);
+                            link.download = 'converted.avif';
+                        } else {
+                            link.href = canvas.toDataURL(`image/${outputFormat.value}`, outputFormat.value === 'jpeg' ? 0.9 : 1.0);
+                            link.download = `converted.${outputFormat.value}`;
+                        }
+                        link.click();
+                    } catch (err) {
+                        alert('Error converting image: ' + err.message);
+                    } finally {
+                        loading.style.display = 'none';
+                    }
+                });
+            } else {
+                console.error('Element with ID "convertBtn" not found.');
+            }
+
+            // ===== REMOVE BACKGROUND FUNCTIONALITY =====
+            const removebgUpload = document.getElementById('removebgUpload');
+            if (removebgUpload) {
+                removebgUpload.addEventListener('change', async function(e) {
+                    const file = e.target.files[0];
+                    if (!file || !file.type.match(/image\/(png|jpeg|jpg|webp|bmp|gif|heic)/)) {
+                        alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, HEIC).');
+                        return;
+                    }
+                    try {
+                        const img = await loadImage(file);
+                        removebgBlob = file;
+                        const originalImg = document.getElementById('removebgOriginal');
+                        if (originalImg) {
+                            originalImg.src = URL.createObjectURL(file);
+                            originalImg.style.display = 'inline-block';
+                        }
+                        drawImageOnCanvas(img, 'removebgCanvas');
+                        const downloadRemovebg = document.getElementById('downloadRemovebg');
+                        const removebgLoading = document.getElementById('removebgLoading');
+                        if (downloadRemovebg) downloadRemovebg.style.display = 'none';
+                        if (removebgLoading) removebgLoading.style.display = 'none';
+                        removedBgBlob = null;
+                    } catch (err) {
+                        alert('Error loading image: ' + err.message);
+                    }
+                });
+            } else {
+                console.error('Element with ID "removebgUpload" not found.');
+            }
+
+            const removebgBtn = document.getElementById('removebgBtn');
+            if (removebgBtn) {
+                removebgBtn.addEventListener('click', async () => {
+                    if (!removebgBlob) {
+                        alert('Please upload an image first.');
+                        return;
+                    }
+                    const loading = document.getElementById('removebgLoading');
+                    if (loading) loading.style.display = 'block';
+                    try {
+                        if (!window['@imgly/background-removal'] || !window['@imgly/background-removal'].removeBackground) {
+                            throw new Error('Background removal library not loaded.');
+                        }
+                        const blob = await window['@imgly/background-removal'].removeBackground(removebgBlob);
+                        removedBgBlob = blob;
+                        const img = new Image();
+                        img.onload = () => {
+                            drawImageOnCanvas(img, 'removebgCanvas');
+                            const downloadRemovebg = document.getElementById('downloadRemovebg');
+                            if (downloadRemovebg) downloadRemovebg.style.display = 'inline-block';
+                        };
+                        img.onerror = () => {
+                            throw new Error('Failed to load processed image');
+                        };
+                        img.src = URL.createObjectURL(blob);
+                    } catch (err) {
+                        alert('Error removing background: ' + err.message);
+                    } finally {
+                        if (loading) loading.style.display = 'none';
+                    }
+                });
+            } else {
+                console.error('Element with ID "removebgBtn" not found.');
+            }
+
+            const downloadRemovebg = document.getElementById('downloadRemovebg');
+            if (downloadRemovebg) {
+                downloadRemovebg.addEventListener('click', () => {
+                    if (removedBgBlob) {
+                        const link = document.createElement('a');
+                        link.download = 'no-background.png';
+                        link.href = URL.createObjectURL(removedBgBlob);
+                        link.click();
+                    } else {
+                        alert('No image to download.');
+                    }
+                });
+            } else {
+                console.error('Element with ID "downloadRemovebg" not found.');
             }
         });
     </script>
