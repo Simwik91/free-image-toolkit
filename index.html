@@ -18,7 +18,7 @@
     <meta name="twitter:description" content="Easily crop, resize, convert, and remove backgrounds from images. Free, fast, and secure with no signup required.">
     <meta name="twitter:image" content="https://free-image-toolkit.com/images/twitter-image.jpg">
     <title>Free Image Toolkit - Crop, Resize, Convert, Remove Background</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="canonical" href="https://free-image-toolkit.com">
     <script src="https://unpkg.com/image-js@0.35.0/dist/image.min.js" crossorigin="anonymous" onerror="console.error('Failed to load image-js library.');"></script>
     <script src="https://unpkg.com/libheif-js@1.17.0/libheif.js" crossorigin="anonymous" onerror="console.error('Failed to load libheif-js library.');"></script>
@@ -40,10 +40,11 @@
             padding: 2em;
             background: #f4f4f4;
             color: #333;
+            margin: 0;
         }
         h1 { font-size: 2em; margin-bottom: 0.2em; }
         h2 { font-size: 1.5em; margin-top: 2em; margin-bottom: 0.5em; }
-        p { margin-top: 0; margin-bottom: 2em; color: #666; }
+        p { margin: 0 0 2em; color: #666; }
         input, select, button {
             margin: 0.5em auto;
             padding: 0.75em;
@@ -60,6 +61,7 @@
             color: white;
             border: none;
             cursor: pointer;
+            transition: background-color 0.3s;
         }
         button:hover { background-color: #005fa3; }
         .tab-buttons { margin-bottom: 2em; }
@@ -228,7 +230,7 @@
 
     <!-- Main JavaScript -->
     <script>
-        // ===== GLOBAL VARIABLES =====
+        // Global Variables
         let cropStart = null;
         let cropRect = null;
         let isDrawing = false;
@@ -239,20 +241,17 @@
         let removebgBlob = null;
         let removedBgBlob = null;
 
-        // ===== MAIN SCRIPT =====
+        // Main Script
         document.addEventListener('DOMContentLoaded', () => {
-            // ===== TAB SWITCHING =====
+            // Tab Switching
             function switchTab(tabName) {
                 const currentTab = document.querySelector('.tool-section.active');
-                const currentTabId = currentTab ? currentTab.id : null;
+                const currentTabId = currentTab?.id;
 
                 if (currentTabId) {
                     if (currentTabId === 'crop') {
                         const canvas = document.getElementById('cropCanvas');
-                        if (canvas) {
-                            const ctx = canvas.getContext('2d');
-                            ctx.clearRect(0, 0, canvas.width, canvas.height);
-                        }
+                        if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
                         const cropUpload = document.getElementById('cropUpload');
                         if (cropUpload) cropUpload.value = '';
                         const downloadCrop = document.getElementById('downloadCrop');
@@ -264,10 +263,7 @@
                         cropRect = null;
                     } else if (currentTabId === 'resize') {
                         const canvas = document.getElementById('resizeCanvas');
-                        if (canvas) {
-                            const ctx = canvas.getContext('2d');
-                            ctx.clearRect(0, 0, canvas.width, canvas.height);
-                        }
+                        if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
                         const resizeUpload = document.getElementById('resizeUpload');
                         const resizeWidth = document.getElementById('resizeWidth');
                         const resizeHeight = document.getElementById('resizeHeight');
@@ -282,20 +278,14 @@
                         resizedImage = null;
                     } else if (currentTabId === 'convert') {
                         const canvas = document.getElementById('convertCanvas');
-                        if (canvas) {
-                            const ctx = canvas.getContext('2d');
-                            ctx.clearRect(0, 0, canvas.width, canvas.height);
-                        }
+                        if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
                         const convertUpload = document.getElementById('convertUpload');
                         const convertLoading = document.getElementById('convertLoading');
                         if (convertUpload) convertUpload.value = '';
                         if (convertLoading) convertLoading.style.display = 'none';
                     } else if (currentTabId === 'removebg') {
                         const canvas = document.getElementById('removebgCanvas');
-                        if (canvas) {
-                            const ctx = canvas.getContext('2d');
-                            ctx.clearRect(0, 0, canvas.width, canvas.height);
-                        }
+                        if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
                         const removebgUpload = document.getElementById('removebgUpload');
                         const removebgOriginal = document.getElementById('removebgOriginal');
                         const downloadRemovebg = document.getElementById('downloadRemovebg');
@@ -310,19 +300,15 @@
                     }
                 }
 
-                document.querySelectorAll('.tool-section').forEach(section => {
-                    section.classList.remove('active');
-                });
-                document.querySelectorAll('.tab-buttons button').forEach(btn => {
-                    btn.classList.remove('active-tab');
-                });
+                document.querySelectorAll('.tool-section').forEach(section => section.classList.remove('active'));
+                document.querySelectorAll('.tab-buttons button').forEach(btn => btn.classList.remove('active-tab'));
                 const tabSection = document.getElementById(tabName);
                 const tabButton = document.querySelector(`button[onclick="switchTab('${tabName}')"]`);
                 if (tabSection) tabSection.classList.add('active');
                 if (tabButton) tabButton.classList.add('active-tab');
             }
 
-            // ===== DRAG AND DROP SETUP =====
+            // Drag and Drop Setup
             function setupDragDrop(dragAreaId, inputId) {
                 const dragArea = document.getElementById(dragAreaId);
                 const fileInput = document.getElementById(inputId);
@@ -340,9 +326,7 @@
                     e.preventDefault();
                     dragArea.classList.add('drag-over');
                 });
-                dragArea.addEventListener('dragleave', () => {
-                    dragArea.classList.remove('drag-over');
-                });
+                dragArea.addEventListener('dragleave', () => dragArea.classList.remove('drag-over'));
                 dragArea.addEventListener('drop', (e) => {
                     e.preventDefault();
                     dragArea.classList.remove('drag-over');
@@ -361,11 +345,11 @@
             setupDragDrop('convertDragArea', 'convertUpload');
             setupDragDrop('removebgDragArea', 'removebgUpload');
 
-            // ===== IMAGE LOADING HELPER =====
+            // Image Loading Helper
             async function loadImage(file) {
                 return new Promise((resolve, reject) => {
                     const fileType = file.type.toLowerCase();
-                    if (!fileType.startsWith('image/') && !['image/heic', 'image/heif', 'image/tiff', 'image/tif'].includes(fileType)) {
+                    if (!fileType.match(/image\/(png|jpeg|jpg|webp|bmp|gif|tiff|tif|heic|heif)/)) {
                         reject(new Error('Invalid file type. Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).'));
                         return;
                     }
@@ -424,7 +408,7 @@
                 });
             }
 
-            // ===== DRAW IMAGE ON CANVAS =====
+            // Draw Image on Canvas
             function drawImageOnCanvas(image, canvasId, isImageJS = false) {
                 const canvas = document.getElementById(canvasId);
                 if (!canvas) {
@@ -436,6 +420,7 @@
                 const scale = Math.min(maxWidth / image.width, 1);
                 canvas.width = image.width * scale;
                 canvas.height = image.height * scale;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
                 if (isImageJS) {
                     ctx.drawImage(image.getCanvas(), 0, 0, canvas.width, canvas.height);
                 } else {
@@ -443,12 +428,12 @@
                 }
             }
 
-            // ===== CROP FUNCTIONALITY =====
+            // Crop Functionality
             const cropUpload = document.getElementById('cropUpload');
             if (cropUpload) {
-                cropUpload.addEventListener('change', async function(e) {
+                cropUpload.addEventListener('change', async (e) => {
                     const file = e.target.files[0];
-                    if (!file || !file.type.match(/image\/(png|jpeg|webp|bmp|gif|tiff|tif|heic|heif)/)) {
+                    if (!file || !file.type.match(/image\/(png|jpeg|jpg|webp|bmp|gif|tiff|tif|heic|heif)/)) {
                         alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).');
                         return;
                     }
@@ -469,46 +454,41 @@
 
             const cropCanvas = document.getElementById('cropCanvas');
             if (cropCanvas) {
-                cropCanvas.addEventListener('mousedown', startDrawing);
-                cropCanvas.addEventListener('mousemove', drawCropRect);
-                cropCanvas.addEventListener('mouseup', stopDrawing);
+                cropCanvas.addEventListener('mousedown', (e) => {
+                    isDrawing = true;
+                    const rect = cropCanvas.getBoundingClientRect();
+                    cropStart = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+                });
+                cropCanvas.addEventListener('mousemove', (e) => {
+                    if (!isDrawing) return;
+                    const rect = cropCanvas.getBoundingClientRect();
+                    const currentX = e.clientX - rect.left;
+                    const currentY = e.clientY - rect.top;
+                    cropRect = {
+                        x: Math.min(cropStart.x, currentX),
+                        y: Math.min(cropStart.y, currentY),
+                        width: Math.abs(currentX - cropStart.x),
+                        height: Math.abs(currentY - cropStart.y),
+                    };
+                    const ctx = cropCanvas.getContext('2d');
+                    ctx.clearRect(0, 0, cropCanvas.width, cropCanvas.height);
+                    ctx.drawImage(originalCropImage, 0, 0, cropCanvas.width, cropCanvas.height);
+                    ctx.strokeStyle = 'red';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(cropRect.x, cropRect.y, cropRect.width, cropRect.height);
+                });
+                cropCanvas.addEventListener('mouseup', () => {
+                    isDrawing = false;
+                });
             } else {
                 console.error('Element with ID "cropCanvas" not found.');
-            }
-
-            function startDrawing(e) {
-                isDrawing = true;
-                const rect = cropCanvas.getBoundingClientRect();
-                cropStart = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-            }
-
-            function drawCropRect(e) {
-                if (!isDrawing) return;
-                const rect = cropCanvas.getBoundingClientRect();
-                const currentX = e.clientX - rect.left;
-                const currentY = e.clientY - rect.top;
-                cropRect = {
-                    x: Math.min(cropStart.x, currentX),
-                    y: Math.min(cropStart.y, currentY),
-                    width: Math.abs(currentX - cropStart.x),
-                    height: Math.abs(currentY - cropStart.y),
-                };
-                const ctx = cropCanvas.getContext('2d');
-                ctx.drawImage(originalCropImage, 0, 0, cropCanvas.width, cropCanvas.height);
-                ctx.strokeStyle = 'red';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(cropRect.x, cropRect.y, cropRect.width, cropRect.height);
-            }
-
-            function stopDrawing() {
-                isDrawing = false;
             }
 
             const cropBtn = document.getElementById('cropBtn');
             if (cropBtn) {
                 cropBtn.addEventListener('click', () => {
-                    if (!cropRect) {
-                        alert('Please draw a crop area first.');
+                    if (!cropRect || !originalCropImage) {
+                        alert('Please draw a crop area on an uploaded image.');
                         return;
                     }
                     const scale = originalCropImage.width / cropCanvas.width;
@@ -538,11 +518,11 @@
                     if (originalCropImage) {
                         drawImageOnCanvas(originalCropImage, 'cropCanvas');
                         croppedImage = null;
+                        cropRect = null;
                         const downloadCrop = document.getElementById('downloadCrop');
                         const resetCropBtn = document.getElementById('resetCrop');
                         if (downloadCrop) downloadCrop.style.display = 'none';
                         if (resetCropBtn) resetCropBtn.style.display = 'none';
-                        cropRect = null;
                     }
                 });
             } else {
@@ -558,19 +538,19 @@
                         link.href = croppedImage.toDataURL('image/png');
                         link.click();
                     } else {
-                        alert('No image to download.');
+                        alert('No cropped image to download.');
                     }
                 });
             } else {
                 console.error('Element with ID "downloadCrop" not found.');
             }
 
-            // ===== RESIZE FUNCTIONALITY =====
+            // Resize Functionality
             const resizeUpload = document.getElementById('resizeUpload');
             if (resizeUpload) {
-                resizeUpload.addEventListener('change', async function(e) {
+                resizeUpload.addEventListener('change', async (e) => {
                     const file = e.target.files[0];
-                    if (!file || !file.type.match(/image\/(png|jpeg|webp|bmp|gif|tiff|tif|heic|heif)/)) {
+                    if (!file || !file.type.match(/image\/(png|jpeg|jpg|webp|bmp|gif|tiff|tif|heic|heif)/)) {
                         alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).');
                         return;
                     }
@@ -596,8 +576,8 @@
                         alert('Please upload an image first.');
                         return;
                     }
-                    const tw = parseInt(document.getElementById('resizeWidth').value);
-                    const th = parseInt(document.getElementById('resizeHeight').value);
+                    const tw = parseInt(document.getElementById('resizeWidth')?.value);
+                    const th = parseInt(document.getElementById('resizeHeight')?.value);
                     if (isNaN(tw) || isNaN(th) || tw <= 0 || th <= 0) {
                         alert('Please enter valid width and height.');
                         return;
@@ -643,17 +623,17 @@
                         link.href = resizedImage.toDataURL('image/png');
                         link.click();
                     } else {
-                        alert('No image to download.');
+                        alert('No resized image to download.');
                     }
                 });
             } else {
                 console.error('Element with ID "downloadResize" not found.');
             }
 
-            // ===== IMAGE CONVERTER =====
+            // Image Converter
             const convertUpload = document.getElementById('convertUpload');
             if (convertUpload) {
-                convertUpload.addEventListener('change', async function(e) {
+                convertUpload.addEventListener('change', async (e) => {
                     const file = e.target.files[0];
                     if (!file || !file.type.match(/image\/(png|jpeg|jpg|webp|bmp|gif|tiff|tif|heic|heif)/)) {
                         alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).');
@@ -686,7 +666,6 @@
                         alert('Please upload an image first.');
                         return;
                     }
-
                     loading.style.display = 'block';
                     try {
                         const img = await loadImage(fileInput.files[0]);
@@ -696,32 +675,19 @@
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0);
                         const link = document.createElement('a');
-                        if (outputFormat.value === 'heic') {
+                        if (['heic', 'tiff', 'avif'].includes(outputFormat.value)) {
                             const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
                             const image = await imageJS.Image.load(pngBlob);
-                            const heifBuffer = await image.toBuffer('heic');
-                            const blob = new Blob([heifBuffer], { type: 'image/heic' });
+                            const buffer = await image.toBuffer(outputFormat.value);
+                            const blob = new Blob([buffer], { type: `image/${outputFormat.value}` });
                             link.href = URL.createObjectURL(blob);
-                            link.download = 'converted.heic';
-                        } else if (outputFormat.value === 'tiff') {
-                            const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-                            const image = await imageJS.Image.load(pngBlob);
-                            const tiffBuffer = await image.toBuffer('tiff');
-                            const blob = new Blob([tiffBuffer], { type: 'image/tiff' });
-                            link.href = URL.createObjectURL(blob);
-                            link.download = 'converted.tiff';
-                        } else if (outputFormat.value === 'avif') {
-                            const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-                            const image = await imageJS.Image.load(pngBlob);
-                            const avifBuffer = await image.toBuffer('avif');
-                            const blob = new Blob([avifBuffer], { type: 'image/avif' });
-                            link.href = URL.createObjectURL(blob);
-                            link.download = 'converted.avif';
+                            link.download = `converted.${outputFormat.value}`;
                         } else {
                             link.href = canvas.toDataURL(`image/${outputFormat.value}`, outputFormat.value === 'jpeg' ? 0.9 : 1.0);
                             link.download = `converted.${outputFormat.value}`;
                         }
                         link.click();
+                        URL.revokeObjectURL(link.href);
                     } catch (err) {
                         alert('Error converting image: ' + err.message);
                     } finally {
@@ -732,10 +698,10 @@
                 console.error('Element with ID "convertBtn" not found.');
             }
 
-            // ===== REMOVE BACKGROUND FUNCTIONALITY =====
+            // Remove Background Functionality
             const removebgUpload = document.getElementById('removebgUpload');
             if (removebgUpload) {
-                removebgUpload.addEventListener('change', async function(e) {
+                removebgUpload.addEventListener('change', async (e) => {
                     const file = e.target.files[0];
                     if (!file || !file.type.match(/image\/(png|jpeg|jpg|webp|bmp|gif|heic)/)) {
                         alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, HEIC).');
@@ -746,6 +712,7 @@
                         removebgBlob = file;
                         const originalImg = document.getElementById('removebgOriginal');
                         if (originalImg) {
+                            if (originalImg.src) URL.revokeObjectURL(originalImg.src);
                             originalImg.src = URL.createObjectURL(file);
                             originalImg.style.display = 'inline-block';
                         }
@@ -773,8 +740,8 @@
                     const loading = document.getElementById('removebgLoading');
                     if (loading) loading.style.display = 'block';
                     try {
-                        if (!window['@imgly/background-removal'] || !window['@imgly/background-removal'].removeBackground) {
-                            throw new Error('Background removal library not loaded.');
+                        if (!window['@imgly/background-removal']?.removeBackground) {
+                            throw new Error('Background removal library not loaded. Please refresh the page.');
                         }
                         const blob = await window['@imgly/background-removal'].removeBackground(removebgBlob);
                         removedBgBlob = blob;
@@ -806,8 +773,9 @@
                         link.download = 'no-background.png';
                         link.href = URL.createObjectURL(removedBgBlob);
                         link.click();
+                        URL.revokeObjectURL(link.href);
                     } else {
-                        alert('No image to download.');
+                        alert('No background-removed image to download.');
                     }
                 });
             } else {
