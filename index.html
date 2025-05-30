@@ -3,34 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Free Image Toolkit: Crop, resize, convert, and remove backgrounds from images in PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC, or AVIF. Fast, free, no signup required.">
-    <meta name="keywords" content="image cropper, image resizer, image converter, remove background, free image toolkit, PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC, AVIF">
+    <meta name="description" content="Free Image Toolkit: Crop, resize, and convert images in PNG, JPEG, WEBP, BMP, GIF, TIFF, or HEIC. Fast, free, no signup required.">
+    <meta name="keywords" content="image cropper, image resizer, image converter, free image toolkit, PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC">
     <meta name="author" content="Free Image Toolkit">
     <meta name="robots" content="index, follow">
     <meta name="googlebot" content="index, follow">
-    <meta property="og:title" content="Free Image Toolkit - Crop, Resize, Convert, Remove Background">
-    <meta property="og:description" content="Easily crop, resize, convert, and remove backgrounds from images in multiple formats. Free, fast, and no signup required.">
+    <meta property="og:title" content="Free Image Toolkit - Crop, Resize, Convert">
+    <meta property="og:description" content="Easily crop, resize, and convert images in multiple formats. Free, fast, and no signup required.">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://free-image-toolkit.com/images/og-image.jpg">
     <meta property="og:url" content="https://free-image-toolkit.com">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Free Image Toolkit - Crop, Resize, Convert, Remove Background">
-    <meta name="twitter:description" content="Easily crop, resize, convert, and remove backgrounds from images. Free, fast, and secure with no signup required.">
+    <meta name="twitter:title" content="Free Image Toolkit - Crop, Resize, Convert">
+    <meta name="twitter:description" content="Easily crop, resize, and convert images. Free, fast, and secure with no signup required.">
     <meta name="twitter:image" content="https://free-image-toolkit.com/images/twitter-image.jpg">
-    <title>Free Image Toolkit - Crop, Resize, Convert, Remove Background</title>
+    <title>Free Image Toolkit - Crop, Resize, Convert</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="canonical" href="https://free-image-toolkit.com">
     <script src="https://unpkg.com/image-js@0.35.0/dist/image.min.js" crossorigin="anonymous" onerror="console.error('Failed to load image-js library.');"></script>
     <script src="https://unpkg.com/libheif-js@1.17.0/libheif.js" crossorigin="anonymous" onerror="console.error('Failed to load libheif-js library.');"></script>
     <script src="https://unpkg.com/onnxruntime-web@1.20.0-dev.20240924-cfa45df6b5/dist/ort.min.js" crossorigin="anonymous" onerror="console.error('Failed to load ONNX Runtime.');"></script>
-    <script src="https://unpkg.com/@imgly/background-removal@1.6.0/dist/index.umd.min.js" crossorigin="anonymous" onerror="console.error('Failed to load background removal library.');"></script>
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
         "@type": "WebSite",
         "name": "Free Image Toolkit",
         "url": "https://free-image-toolkit.com",
-        "description": "Free tool to crop, resize, convert, and remove backgrounds from images in PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC, or AVIF."
+        "description": "Free tool to crop, resize, and convert images in PNG, JPEG, WEBP, BMP, GIF, TIFF, or HEIC."
     }
     </script>
     <style>
@@ -115,24 +114,17 @@
         .sister-tools-section { margin: 2em auto; }
         .sister-tools-section h2 { font-size: 1.8em; color: #333; }
         .sister-tools-section p { font-size: 1em; max-width: 600px; margin: 1em auto; }
-        #removebgOriginal, #removebgCanvas {
-            display: inline-block;
-            vertical-align: top;
-            max-width: 400px;
-            margin: 1em;
-        }
     </style>
 </head>
 <body>
     <h1>Free Image Toolkit</h1>
-    <p>Crop, resize, convert, and remove backgrounds from images in PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC, or AVIF</p>
+    <p>Crop, resize, and convert images in PNG, JPEG, WEBP, BMP, GIF, TIFF, or HEIC</p>
 
     <!-- Tab Navigation -->
     <div class="tab-buttons">
         <button class="active-tab" onclick="switchTab('crop')">Crop</button>
         <button onclick="switchTab('resize')">Resize</button>
         <button onclick="switchTab('convert')">Convert</button>
-        <button onclick="switchTab('removebg')">Remove Background</button>
     </div>
 
     <!-- Crop Tool -->
@@ -168,7 +160,7 @@
         <h2>Image Converter</h2>
         <p><i>Convert your image to a different format. Processing may take a few seconds.</i></p>
         <div class="drag-drop-area" id="convertDragArea">Drag your picture here or click to browse</div>
-        <input type="file" id="convertUpload" accept="image/*,.heic,.heif,.tiff,.tif" style="display: none;" />
+        <input type="file" id="convertUpload" accept="image/*,.tiff,.tif" style="display: none;" />
         <canvas id="convertCanvas"></canvas>
         <div id="convertLoading" class="loading">Processing... (Please wait)</div>
         <select id="outputFormat">
@@ -178,23 +170,9 @@
             <option value="bmp">BMP</option>
             <option value="gif">GIF</option>
             <option value="tiff">TIFF</option>
-            <option value="heic">HEIC</option>
             <option value="avif">AVIF</option>
         </select>
         <button id="convertBtn">Convert & Download</button>
-    </div>
-
-    <!-- Remove Background Tool -->
-    <div id="removebg" class="tool-section">
-        <h2>Remove Background</h2>
-        <p><i>Remove the background from your image. Note: Results may vary depending on image content.</i></p>
-        <div class="drag-drop-area" id="removebgDragArea">Drag your picture here or click to browse</div>
-        <input type="file" id="removebgUpload" accept="image/*,.heic,.heif" style="display: none;" />
-        <img id="removebgOriginal" style="display: none;" alt="Original Image" />
-        <canvas id="removebgCanvas"></canvas>
-        <div id="removebgLoading" class="loading">Processing... (Please wait)</div>
-        <button id="removebgBtn">Remove Background</button>
-        <button id="downloadRemovebg" style="display: none;">Download</button>
     </div>
 
     <hr>
@@ -238,8 +216,6 @@
         let croppedImage = null;
         let originalResizeImage = null;
         let resizedImage = null;
-        let removebgBlob = null;
-        let removedBgBlob = null;
 
         // Main Script
         document.addEventListener('DOMContentLoaded', () => {
@@ -283,20 +259,6 @@
                         const convertLoading = document.getElementById('convertLoading');
                         if (convertUpload) convertUpload.value = '';
                         if (convertLoading) convertLoading.style.display = 'none';
-                    } else if (currentTabId === 'removebg') {
-                        const canvas = document.getElementById('removebgCanvas');
-                        if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-                        const removebgUpload = document.getElementById('removebgUpload');
-                        const removebgOriginal = document.getElementById('removebgOriginal');
-                        const downloadRemovebg = document.getElementById('downloadRemovebg');
-                        const removebgLoading = document.getElementById('removebgLoading');
-                        if (removebgUpload) removebgUpload.value = '';
-                        if (removebgOriginal) removebgOriginal.style.display = 'none';
-                        if (downloadRemovebg) downloadRemovebg.style.display = 'none';
-                        if (removebgLoading) removebgLoading.style.display = 'none';
-                        if (removebgBlob && removebgOriginal) URL.revokeObjectURL(removebgOriginal.src);
-                        removebgBlob = null;
-                        removedBgBlob = null;
                     }
                 }
 
@@ -343,7 +305,6 @@
             setupDragDrop('cropDragArea', 'cropUpload');
             setupDragDrop('resizeDragArea', 'resizeUpload');
             setupDragDrop('convertDragArea', 'convertUpload');
-            setupDragDrop('removebgDragArea', 'removebgUpload');
 
             // Image Loading Helper
             async function loadImage(file) {
@@ -471,7 +432,7 @@
                         height: Math.abs(currentY - cropStart.y),
                     };
                     const ctx = cropCanvas.getContext('2d');
-                    ctx.clearRect(0, 0, cropCanvas.width, cropCanvas.height);
+                    ctx.clearRect(0, 0, cropCanvas.width, canvas.height);
                     ctx.drawImage(originalCropImage, 0, 0, cropCanvas.width, cropCanvas.height);
                     ctx.strokeStyle = 'red';
                     ctx.lineWidth = 2;
@@ -537,6 +498,7 @@
                         link.download = 'cropped.png';
                         link.href = croppedImage.toDataURL('image/png');
                         link.click();
+                        URL.revokeObjectURL(link.href);
                     } else {
                         alert('No cropped image to download.');
                     }
@@ -622,6 +584,7 @@
                         link.download = 'resized.png';
                         link.href = resizedImage.toDataURL('image/png');
                         link.click();
+                        URL.revokeObjectURL(link.href);
                     } else {
                         alert('No resized image to download.');
                     }
@@ -635,8 +598,8 @@
             if (convertUpload) {
                 convertUpload.addEventListener('change', async (e) => {
                     const file = e.target.files[0];
-                    if (!file || !file.type.match(/image\/(png|jpeg|jpg|webp|bmp|gif|tiff|tif|heic|heif)/)) {
-                        alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).');
+                    if (!file || !file.type.match(/image\/(png|jpeg|jpg|webp|bmp|gif|tiff|tif)/)) {
+                        alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF).');
                         return;
                     }
                     try {
@@ -649,7 +612,7 @@
                     }
                 });
             } else {
-                console.error('Element with ID "convertUpload" not found.');
+                console.error('Element with ID convertUpload" not found.');
             }
 
             const convertBtn = document.getElementById('convertBtn');
@@ -675,15 +638,22 @@
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0);
                         const link = document.createElement('a');
-                        if (['heic', 'tiff', 'avif'].includes(outputFormat.value)) {
+                        if (outputFormat.value === 'tiff') {
                             const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
                             const image = await imageJS.Image.load(pngBlob);
-                            const buffer = await image.toBuffer(outputFormat.value);
-                            const blob = new Blob([buffer], { type: `image/${outputFormat.value}` });
+                            const buffer = await image.toBuffer('tiff');
+                            const blob = new Blob([buffer], { type: 'image/tiff' });
                             link.href = URL.createObjectURL(blob);
-                            link.download = `converted.${outputFormat.value}`;
+                            link.download = 'converted.tiff';
+                        } else if (outputFormat.value === 'avif') {
+                            const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                            const image = await imageJS.Image.load(pngBlob);
+                            const buffer = await image.toBuffer('avif');
+                            const blob = new Blob([buffer], { type: 'image/avif' });
+                            link.href = URL.createObjectURL(blob);
+                            link.download = 'converted.avif';
                         } else {
-                            link.href = canvas.toDataURL(`image/${outputFormat.value}`, outputFormat.value === 'jpeg' ? 0.9 : 1.0);
+                            link.href = canvas.toDataURL(`image/${outputFormat.value}`, outputFormat.value === 'jpeg' ? 0.9 : 1);
                             link.download = `converted.${outputFormat.value}`;
                         }
                         link.click();
@@ -692,96 +662,12 @@
                         alert('Error converting image: ' + err.message);
                     } finally {
                         loading.style.display = 'none';
-                    }
-                });
-            } else {
-                console.error('Element with ID "convertBtn" not found.');
-            }
-
-            // Remove Background Functionality
-            const removebgUpload = document.getElementById('removebgUpload');
-            if (removebgUpload) {
-                removebgUpload.addEventListener('change', async (e) => {
-                    const file = e.target.files[0];
-                    if (!file || !file.type.match(/image\/(png|jpeg|jpg|webp|bmp|gif|heic)/)) {
-                        alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, HEIC).');
-                        return;
-                    }
-                    try {
-                        const img = await loadImage(file);
-                        removebgBlob = file;
-                        const originalImg = document.getElementById('removebgOriginal');
-                        if (originalImg) {
-                            if (originalImg.src) URL.revokeObjectURL(originalImg.src);
-                            originalImg.src = URL.createObjectURL(file);
-                            originalImg.style.display = 'inline-block';
                         }
-                        drawImageOnCanvas(img, 'removebgCanvas');
-                        const downloadRemovebg = document.getElementById('downloadRemovebg');
-                        const removebgLoading = document.getElementById('removebgLoading');
-                        if (downloadRemovebg) downloadRemovebg.style.display = 'none';
-                        if (removebgLoading) removebgLoading.style.display = 'none';
-                        removedBgBlob = null;
-                    } catch (err) {
-                        alert('Error loading image: ' + err.message);
-                    }
-                });
-            } else {
-                console.error('Element with ID "removebgUpload" not found.');
-            }
-
-            const removebgBtn = document.getElementById('removebgBtn');
-            if (removebgBtn) {
-                removebgBtn.addEventListener('click', async () => {
-                    if (!removebgBlob) {
-                        alert('Please upload an image first.');
-                        return;
-                    }
-                    const loading = document.getElementById('removebgLoading');
-                    if (loading) loading.style.display = 'block';
-                    try {
-                        if (!window['@imgly/background-removal']?.removeBackground) {
-                            throw new Error('Background removal library not loaded. Please refresh the page.');
-                        }
-                        const blob = await window['@imgly/background-removal'].removeBackground(removebgBlob);
-                        removedBgBlob = blob;
-                        const img = new Image();
-                        img.onload = () => {
-                            drawImageOnCanvas(img, 'removebgCanvas');
-                            const downloadRemovebg = document.getElementById('downloadRemovebg');
-                            if (downloadRemovebg) downloadRemovebg.style.display = 'inline-block';
-                        };
-                        img.onerror = () => {
-                            throw new Error('Failed to load processed image');
-                        };
-                        img.src = URL.createObjectURL(blob);
-                    } catch (err) {
-                        alert('Error removing background: ' + err.message);
-                    } finally {
-                        if (loading) loading.style.display = 'none';
-                    }
-                });
-            } else {
-                console.error('Element with ID "removebgBtn" not found.');
-            }
-
-            const downloadRemovebg = document.getElementById('downloadRemovebg');
-            if (downloadRemovebg) {
-                downloadRemovebg.addEventListener('click', () => {
-                    if (removedBgBlob) {
-                        const link = document.createElement('a');
-                        link.download = 'no-background.png';
-                        link.href = URL.createObjectURL(removedBgBlob);
-                        link.click();
-                        URL.revokeObjectURL(link.href);
-                    } else {
-                        alert('No background-removed image to download.');
-                    }
-                });
-            } else {
-                console.error('Element with ID "downloadRemovebg" not found.');
-            }
-        });
-    </script>
-</body>
+                    });
+                } else {
+                    console.error('Element with ID "convertBtn" not found.');
+                }
+            });
+        </script>
+    </body>
 </html>
