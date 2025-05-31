@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Free Image Toolkit: Crop, resize, and convert images in PNG, JPEG, WEBP, BMP, GIF, TIFF, or HEIC. Fast, free, no signup required.">
-    <meta name="keywords" content="image cropper, image resizer, image converter, free image toolkit, PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC">
+    <meta name="description" content="Free Image Toolkit: Crop, resize, and convert images in PNG, JPEG, WEBP, BMP, GIF, or HEIC. Fast, free, no signup required.">
+    <meta name="keywords" content="image cropper, image resizer, image converter, free image toolkit, PNG, JPEG, WEBP, BMP, GIF, HEIC">
     <meta name="author" content="Free Image Toolkit">
     <meta name="robots" content="index, follow">
     <meta name="googlebot" content="index, follow">
@@ -20,13 +20,14 @@
     <title>Free Image Toolkit - Crop, Resize, Convert</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="canonical" href="https://free-image-toolkit.com">
+    <script defer src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" onload="window.heic2anyAvailable = true;" onerror="console.error('Failed to load heic2any'); window.heic2anyAvailable = false;"></script>
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
         "@type": "WebSite",
         "name": "Free Image Toolkit",
         "url": "https://free-image-toolkit.com",
-        "description": "Free tool to crop, resize, and convert images in PNG, JPEG, WEBP, BMP, GIF, TIFF, or HEIC."
+        "description": "Free tool to crop, resize, and convert images in PNG, JPEG, WEBP, BMP, GIF, or HEIC."
     }
     </script>
     <style>
@@ -115,7 +116,7 @@
 </head>
 <body>
     <h1>Free Image Toolkit</h1>
-    <p>Crop, resize, and convert images in PNG, JPEG, WEBP, BMP, GIF, TIFF, or HEIC</p>
+    <p>Crop, resize, and convert images in PNG, JPEG, WEBP, BMP, GIF, or HEIC</p>
 
     <!-- Tab Navigation -->
     <div class="tab-buttons">
@@ -129,7 +130,7 @@
         <h2>Image Cropper</h2>
         <p><i>Draw a rectangle on the image to crop it.</i></p>
         <div class="drag-drop-area" id="cropDragArea">Drag your picture here or click to browse</div>
-        <input type="file" id="cropUpload" accept="image/*,.heic,.heif,.tiff,.tif" style="display: none;" />
+        <input type="file" id="cropUpload" accept="image/*,.heic,.heif" style="display: none;" />
         <canvas id="cropCanvas"></canvas>
         <button id="cropBtn">Crop Image</button>
         <button id="resetCrop" style="display: none;">Reset</button>
@@ -141,7 +142,7 @@
         <h2>Image Resizer</h2>
         <p><i>Resize your image to the specified dimensions. The image will be stretched or squashed to fit without padding.</i></p>
         <div class="drag-drop-area" id="resizeDragArea">Drag your picture here or click to browse</div>
-        <input type="file" id="resizeUpload" accept="image/*,.heic,.heif,.tiff,.tif" style="display: none;" />
+        <input type="file" id="resizeUpload" accept="image/*,.heic,.heif" style="display: none;" />
         <div class="resize-controls">
             <input type="number" id="resizeWidth" min="1" placeholder="Width (px)">
             <input type="number" id="resizeHeight" min="1" placeholder="Height (px)">
@@ -157,7 +158,7 @@
         <h2>Image Converter</h2>
         <p><i>Convert your image to a different format. Processing may take a few seconds.</i></p>
         <div class="drag-drop-area" id="convertDragArea">Drag your picture here or click to browse</div>
-        <input type="file" id="convertUpload" accept="image/*,.tiff,.tif" style="display: none;" />
+        <input type="file" id="convertUpload" accept="image/*" style="display: none;" />
         <canvas id="convertCanvas"></canvas>
         <div id="convertLoading" class="loading">Processing... (Please wait)</div>
         <select id="outputFormat">
@@ -166,8 +167,6 @@
             <option value="webp">WEBP</option>
             <option value="bmp">BMP</option>
             <option value="gif">GIF</option>
-            <option value="tiff">TIFF</option>
-            <option value="avif">AVIF</option>
         </select>
         <button id="convertBtn">Convert & Download</button>
     </div>
@@ -205,52 +204,8 @@
 
     <!-- Main JavaScript -->
     <script>
-        // Library Availability Flags
-        window.imageJSAvailable = false;
+        // Library Availability Flag
         window.heic2anyAvailable = false;
-
-        // Fallback for image-js
-        function loadImageJSFallback(source) {
-            console.warn(`image-js failed to load from ${source}, attempting fallback...`);
-            const script = document.createElement('script');
-            const fallbackUrls = [
-                'https://unpkg.com/image-js@0.36.0/dist/image.min.js',
-                '/libs/image.min.js' // Assumes local copy
-            ];
-            script.src = fallbackUrls.shift();
-            script.defer = true;
-            script.onload = () => {
-                window.imageJSAvailable = true;
-                console.log(`image-js loaded from ${script.src}`);
-                updateConverterOptions();
-            };
-            script.onerror = () => {
-                if (fallbackUrls.length) {
-                    script.src = fallbackUrls.shift();
-                    document.head.appendChild(script);
-                } else {
-                    console.error('All image-js fallbacks failed.');
-                    window.imageJSAvailable = false;
-                    updateConverterOptions();
-                }
-            };
-            document.head.appendChild(script);
-        }
-
-        // Update Converter Options
-        function updateConverterOptions() {
-            const outputFormat = document.getElementById('outputFormat');
-            if (!outputFormat) return;
-            const tiffOption = outputFormat.querySelector('option[value="tiff"]');
-            const avifOption = outputFormat.querySelector('option[value="avif"]');
-            if (!window.imageJSAvailable) {
-                if (tiffOption) tiffOption.disabled = true;
-                if (avifOption) avifOption.disabled = true;
-            } else {
-                if (tiffOption) tiffOption.disabled = false;
-                if (avifOption) avifOption.disabled = false;
-            }
-        }
 
         // Global Variables
         let cropStart = null;
@@ -316,18 +271,13 @@
         async function loadImage(file) {
             return new Promise((resolve, reject) => {
                 const fileType = file.type.toLowerCase();
-                if (!fileType.match(/image\/(png|jpeg|jpg|webp|bmp|gif|tiff|tif|heic|heif)/)) {
-                    reject(new Error('Invalid file type. Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).'));
+                if (!fileType.match(/image\/(png|jpeg|jpg|webp|bmp|gif|heic|heif)/)) {
+                    reject(new Error('Invalid file type. Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, HEIC).'));
                     return;
                 }
 
                 if ((fileType === 'image/heic' || fileType === 'image/heif') && !window.heic2anyAvailable) {
                     reject(new Error('HEIC support is not available. Please try a different file format.'));
-                    return;
-                }
-
-                if ((fileType === 'image/tiff' || fileType === 'image/tif') && !window.imageJSAvailable) {
-                    reject(new Error('TIFF support is not available. Please try a different file format.'));
                     return;
                 }
 
@@ -347,25 +297,6 @@
                     };
                     reader.onerror = () => reject(new Error('Failed to read HEIC file'));
                     reader.readAsArrayBuffer(file);
-                } else if (fileType === 'image/tiff' || fileType === 'image/tif') {
-                    const reader = new FileReader();
-                    reader.onload = async (e) => {
-                        try {
-                            const image = await imageJS.Image.load(e.target.result);
-                            const canvas = document.createElement('canvas');
-                            canvas.width = image.width;
-                            canvas.height = image.height;
-                            canvas.getContext('2d').drawImage(image.getCanvas(), 0, 0);
-                            const img = new Image();
-                            img.onload = () => resolve(img);
-                            img.onerror = () => reject(new Error('Failed to load TIFF image'));
-                            img.src = canvas.toDataURL('image/png');
-                        } catch (err) {
-                            reject(new Error('Error processing TIFF image: ' + err.message));
-                        }
-                    };
-                    reader.onerror = () => reject(new Error('Failed to read TIFF file'));
-                    reader.readAsArrayBuffer(file);
                 } else {
                     const reader = new FileReader();
                     reader.onload = (e) => {
@@ -381,7 +312,7 @@
         }
 
         // Draw Image on Canvas
-        function drawImageOnCanvas(image, canvasId, isImageJS = false) {
+        function drawImageOnCanvas(image, canvasId) {
             const canvas = document.getElementById(canvasId);
             if (!canvas) {
                 console.error(`Canvas with ID "${canvasId}" not found.`);
@@ -399,11 +330,7 @@
             ctx.scale(pixelRatio, pixelRatio);
 
             ctx.clearRect(0, 0, canvas.width / pixelRatio, canvas.height / pixelRatio);
-            if (isImageJS) {
-                ctx.drawImage(image.getCanvas(), 0, 0, canvas.width / pixelRatio, canvas.height / pixelRatio);
-            } else {
-                ctx.drawImage(image, 0, 0, canvas.width / pixelRatio, canvas.height / pixelRatio);
-            }
+            ctx.drawImage(image, 0, 0, canvas.width / pixelRatio, canvas.height / pixelRatio);
         }
 
         // Crop Functionality
@@ -411,8 +338,8 @@
         if (cropUpload) {
             cropUpload.addEventListener('change', async (e) => {
                 const file = e.target.files[0];
-                if (!file || !file.type.match(/image\/(png|jpeg|jpg|webp|bmp|gif|tiff|tif|heic|heif)/)) {
-                    alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).');
+                if (!file || !file.type.match(/image\/(png|jpeg|jpg|webp|bmp|gif|heic|heif)/)) {
+                    alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, HEIC).');
                     return;
                 }
                 try {
@@ -453,8 +380,8 @@
                     height: Math.abs(currentY - cropStart.y),
                 };
                 const ctx = cropCanvas.getContext('2d');
-                ctx.clearRect(0, 0, cropCanvas.width / pixelRatio, cropCanvas.height / pixelRatio);
-                ctx.drawImage(originalCropImage, 0, 0, cropCanvas.width / pixelRatio, cropCanvas.height / pixelRatio);
+                ctx.clearRect(0, 0, cropCanvas.width / pixelRatio, canvas.height / pixelRatio);
+                ctx.drawImage(originalCropImage, 0, 0, cropCanvas.width / pixelRatio, canvas.height / pixelRatio);
                 ctx.strokeStyle = 'red';
                 ctx.lineWidth = 2;
                 ctx.strokeRect(cropRect.x / pixelRatio, cropRect.y / pixelRatio, cropRect.width / pixelRatio, cropRect.height / pixelRatio);
@@ -526,8 +453,8 @@
         if (resizeUpload) {
             resizeUpload.addEventListener('change', async (e) => {
                 const file = e.target.files[0];
-                if (!file || !file.type.match(/image\/(png|jpeg|jpg|webp|bmp|gif|tiff|tif|heic|heif)/)) {
-                    alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).');
+                if (!file || !file.type.match(/image\/(png|jpeg|jpg|webp|bmp|gif|heic|heif)/)) {
+                    alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, HEIC).');
                     return;
                 }
                 try {
@@ -604,8 +531,8 @@
         if (convertUpload) {
             convertUpload.addEventListener('change', async (e) => {
                 const file = e.target.files[0];
-                if (!file || !file.type.match(/image\/(png|jpeg|jpg|webp|bmp|gif|tiff|tif)/)) {
-                    alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF).');
+                if (!file || !file.type.match(/image\/(png|jpeg|jpg|webp|bmp|gif)/)) {
+                    alert('Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF).');
                     return;
                 }
                 try {
@@ -630,10 +557,6 @@
                     alert('Please upload an image first.');
                     return;
                 }
-                if ((outputFormat.value === 'tiff' || outputFormat.value === 'avif') && !window.imageJSAvailable) {
-                    alert(`${outputFormat.value.toUpperCase()} conversion is not available. Please select another format.`);
-                    return;
-                }
                 loading.style.display = 'block';
                 try {
                     const img = await loadImage(fileInput.files[0]);
@@ -643,25 +566,8 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, img.width, img.height);
                     const link = document.createElement('a');
-
-                    if (outputFormat.value === 'tiff') {
-                        const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-                        const image = await imageJS.Image.load(pngBlob);
-                        const buffer = await image.toBuffer('tiff');
-                        const blob = new Blob([buffer], { type: 'image/tiff' });
-                        link.href = URL.createObjectURL(blob);
-                        link.download = 'converted.tiff';
-                    } else if (outputFormat.value === 'avif') {
-                        const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-                        const image = await imageJS.Image.load(pngBlob);
-                        const buffer = await image.toBuffer('avif');
-                        const blob = new Blob([buffer], { type: 'image/avif' });
-                        link.href = URL.createObjectURL(blob);
-                        link.download = 'converted.avif';
-                    } else {
-                        link.href = canvas.toDataURL(`image/${outputFormat.value}`, outputFormat.value === 'jpeg' ? 0.9 : 1);
-                        link.download = `converted.${outputFormat.value}`;
-                    }
+                    link.href = canvas.toDataURL(`image/${outputFormat.value}`, outputFormat.value === 'jpeg' ? 0.9 : 1);
+                    link.download = `converted.${outputFormat.value}`;
                     link.click();
                     URL.revokeObjectURL(link.href);
                 } catch (err) {
@@ -674,7 +580,6 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            updateConverterOptions();
             function setupDragDrop(dragAreaId, inputId) {
                 const dragArea = document.getElementById(dragAreaId);
                 const fileInput = document.getElementById(inputId);
@@ -693,39 +598,17 @@
                     e.preventDefault();
                     dragArea.classList.remove('drag-over');
                     const files = e.dataTransfer.files;
-                    if (files.length > 0 && (files[0].type.startsWith('image/') || ['image/heic', 'image/heif', 'image/tiff', 'image/tif'].includes(files[0].type))) {
+                    if (files.length > 0 && (files[0].type.startsWith('image/') || ['image/heic', 'image/heif'].includes(files[0].type))) {
                         fileInput.files = files;
                         fileInput.dispatchEvent(new Event('change'));
                     } else {
-                        alert('Please drop a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).');
+                        alert('Please drop a valid image file (PNG, JPEG, WEBP, BMP, GIF, HEIC).');
                     }
                 });
             }
             setupDragDrop('cropDragArea', 'cropUpload');
             setupDragDrop('resizeDragArea', 'resizeUpload');
             setupDragDrop('convertDragArea', 'convertUpload');
-        });
-
-        // External Libraries (deferred)
-        const scripts = [
-            {
-                src: 'https://cdn.jsdelivr.net/npm/image-js@0.36.0/dist/image.min.js',
-                onload: () => { window.imageJSAvailable = true; updateConverterOptions(); },
-                onerror: () => loadImageJSFallback('cdn')
-            },
-            {
-                src: 'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js',
-                onload: () => { window.heic2anyAvailable = true; },
-                onerror: () => { console.error('Failed to load heic2any'); window.heic2anyAvailable = false; }
-            }
-        ];
-        scripts.forEach(s => {
-            const script = document.createElement('script');
-            script.src = s.src;
-            script.defer = true;
-            script.onload = s.onload;
-            script.onerror = s.onerror;
-            document.head.appendChild(script);
         });
     </script>
 </body>
