@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Free Image Toolkit: Crop, resize, and convert images in PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC, or ICO. Fast, free, no signup required.">
-    <meta name="keywords" content="image cropper, image resizer, image converter, free image toolkit, PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC, ICO">
+    <meta name="description" content="Free Image Toolkit: Crop, resize, and convert images in PNG, JPEG, WEBP, BMP, GIF, TIFF, or HEIC. Fast, free, no signup required.">
+    <meta name="keywords" content="image cropper, image resizer, image converter, free image toolkit, PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC">
     <meta name="author" content="Free Image Toolkit">
     <meta name="robots" content="index, follow">
     <meta name="googlebot" content="index, follow">
@@ -20,176 +20,13 @@
     <title>Free Image Toolkit - Crop, Resize, Convert</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="canonical" href="https://free-image-toolkit.com">
-    <!-- Updated CDN links with fallback for image-js -->
-    <script src="https://cdn.jsdelivr.net/npm/image-js@0.35.5/dist/image.min.js" crossorigin="anonymous" onload="window.imageJSAvailable = true;" onerror="loadImageJSFallback()"></script>
-    <script>
-        window.imageJSAvailable = false;
-        function loadImageJSFallback() {
-            console.warn('Primary image-js CDN failed, attempting fallback...');
-            const script = document.createElement('script');
-            script.src = 'https://unpkg.com/image-js@0.35.5/dist/image.min.js';
-            script.crossOrigin = 'anonymous';
-            script.onload = () => {
-                window.imageJSAvailable = true;
-                console.log('Image-js loaded from fallback CDN.');
-                updateConverterOptions();
-            };
-            script.onerror = () => {
-                console.error('Failed to load image-js from fallback CDN.');
-                window.imageJSAvailable = false;
-                updateConverterOptions();
-            };
-            document.head.appendChild(script);
-        }
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/libheif-js@1.17.0/lib/libheif.js" crossorigin="anonymous" onerror="console.error('Failed to load libheif-js library.');"></script>
-    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.0-dev.20240924-cfa45df6b5/dist/ort.min.js" crossorigin="anonymous" onerror="console.error('Failed to load ONNX Runtime.');"></script>
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
         "@type": "WebSite",
         "name": "Free Image Toolkit",
         "url": "https://free-image-toolkit.com",
-        "description": "Free tool to crop, resize, and convert images in PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC, or ICO."
-    }
-    </script>
-    <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            text-align: center;
-            padding: 2em;
-            background: #f4f4f4;
-            color: #333;
-            margin: 0;
-        }
-        h1 { font-size: 2em; margin-bottom: 0.2em; }
-        h2 { font-size: 1.5em; margin-top: 2em; margin-bottom: 0.5em; }
-        p { margin: 0 0 2em; color: #666; }
-        input, select, button {
-            margin: 0.5em auto;
-            padding: 0.75em;
-            width: 90%;
-            max-width: 400px;
-            font-size: 1em;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            box-sizing: border-box;
-        }
-        button {
-            background-color: #007acc;
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        button:hover { background-color: #005fa3; }
-        .tab-buttons { margin-bottom: 2em; }
-        .tab-buttons button {
-            width: auto;
-            min-width: 120px;
-            margin: 0 0.5em;
-            display: inline-block;
-            padding: 0.75em 1.5em;
-        }
-        .tab-buttons button.active-tab { background-color: #005fa3; }
-        canvas { margin: 1em auto; display: block; max-width: 400px; border: 1px solid #ccc; }
-        .loading { display: none; color: #007acc; font-weight: bold; margin: 1em auto; }
-        .resize-controls input {
-            width: 45%;
-            max-width: 180px;
-            display: inline-block;
-        }
-        .tool-section { display: none; }
-        .tool-section.active { display: block; }
-        .drag-drop-area {
-            width: 90%;
-            max-width: 400px;
-            margin: 1em auto;
-            padding: 2em;
-            border: 2px dashed #ccc;
-            border-radius: 6px;
-            background: #fff;
-            color: #666;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .drag --
-
-System: The code was cut off due to length. I'll provide the complete updated code, continuing from where it was truncated, incorporating the `image-js` loading fix, crop functionality fixes, and ICO support. I'll also ensure the code is concise and avoids redundancy while maintaining all functionality.
-
-### Full Updated Code (Continued)
-
-<xaiArtifact artifact_id="bbd1a3d2-432f-4a82-83bb-757ed64f1194" artifact_version_id="0a0f3914-0f09-4f51-9b9d-672067224c1b" title="index.html" contentType="text/html">
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Free Image Toolkit: Crop, resize, and convert images in PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC, or ICO. Fast, free, no signup required.">
-    <meta name="keywords" content="image cropper, image resizer, image converter, free image toolkit, PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC, ICO">
-    <meta name="author" content="Free Image Toolkit">
-    <meta name="robots" content="index, follow">
-    <meta name="googlebot" content="index, follow">
-    <meta property="og:title" content="Free Image Toolkit - Crop, Resize, Convert">
-    <meta property="og:description" content="Easily crop, resize, and convert images in multiple formats. Free, fast, and no signup required.">
-    <meta property="og:type" content="website">
-    <meta property="og:image" content="https://free-image-toolkit.com/images/og-image.jpg">
-    <meta property="og:url" content="https://free-image-toolkit.com">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Free Image Toolkit - Crop, Resize, Convert">
-    <meta name="twitter:description" content="Easily crop, resize, and convert images. Free, fast, and secure with no signup required.">
-    <meta name="twitter:image" content="https://free-image-toolkit.com/images/twitter-image.jpg">
-    <title>Free Image Toolkit - Crop, Resize, Convert</title>
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="canonical" href="https://free-image-toolkit.com">
-    <!-- Updated CDN links with fallback for image-js -->
-    <script src="https://cdn.jsdelivr.net/npm/image-js@0.35.5/dist/image.min.js" crossorigin="anonymous" onload="window.imageJSAvailable = true; updateConverterOptions();" onerror="loadImageJSFallback()"></script>
-    <script>
-        window.imageJSAvailable = false;
-        function loadImageJSFallback() {
-            console.warn('Primary image-js CDN failed, attempting fallback...');
-            const script = document.createElement('script');
-            script.src = 'https://unpkg.com/image-js@0.35.5/dist/image.min.js';
-            script.crossOrigin = 'anonymous';
-            script.onload = () => {
-                window.imageJSAvailable = true;
-                console.log('Image-js loaded from fallback CDN.');
-                updateConverterOptions();
-            };
-            script.onerror = () => {
-                console.error('Failed to load image-js from fallback CDN.');
-                window.imageJSAvailable = false;
-                updateConverterOptions();
-            };
-            document.head.appendChild(script);
-        }
-        function updateConverterOptions() {
-            const outputFormat = document.getElementById('outputFormat');
-            if (!outputFormat) return;
-            const tiffOption = outputFormat.querySelector('option[value="tiff"]');
-            const avifOption = outputFormat.querySelector('option[value="avif"]');
-            const icoOption = outputFormat.querySelector('option[value="ico"]');
-            if (!window.imageJSAvailable) {
-                if (tiffOption) tiffOption.disabled = true;
-                if (avifOption) avifOption.disabled = true;
-                if (icoOption) icoOption.disabled = true;
-            } else {
-                if (tiffOption) tiffOption.disabled = false;
-                if (avifOption) avifOption.disabled = false;
-                if (icoOption) icoOption.disabled = false;
-            }
-        }
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/libheif-js@1.17.0/lib/libheif.js" crossorigin="anonymous" onerror="console.error('Failed to load libheif-js library.');"></script>
-    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.0-dev.20240924-cfa45df6b5/dist/ort.min.js" crossorigin="anonymous" onerror="console.error('Failed to load ONNX Runtime.');"></script>
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "Free Image Toolkit",
-        "url": "https://free-image-toolkit.com",
-        "description": "Free tool to crop, resize, and convert images in PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC, or ICO."
+        "description": "Free tool to crop, resize, and convert images in PNG, JPEG, WEBP, BMP, GIF, TIFF, or HEIC."
     }
     </script>
     <style>
@@ -278,7 +115,7 @@ System: The code was cut off due to length. I'll provide the complete updated co
 </head>
 <body>
     <h1>Free Image Toolkit</h1>
-    <p>Crop, resize, and convert images in PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC, or ICO</p>
+    <p>Crop, resize, and convert images in PNG, JPEG, WEBP, BMP, GIF, TIFF, or HEIC</p>
 
     <!-- Tab Navigation -->
     <div class="tab-buttons">
@@ -331,7 +168,6 @@ System: The code was cut off due to length. I'll provide the complete updated co
             <option value="gif">GIF</option>
             <option value="tiff">TIFF</option>
             <option value="avif">AVIF</option>
-            <option value="ico">ICO</option>
         </select>
         <button id="convertBtn">Convert & Download</button>
     </div>
@@ -369,6 +205,53 @@ System: The code was cut off due to length. I'll provide the complete updated co
 
     <!-- Main JavaScript -->
     <script>
+        // Library Availability Flags
+        window.imageJSAvailable = false;
+        window.heic2anyAvailable = false;
+
+        // Fallback for image-js
+        function loadImageJSFallback(source) {
+            console.warn(`image-js failed to load from ${source}, attempting fallback...`);
+            const script = document.createElement('script');
+            const fallbackUrls = [
+                'https://unpkg.com/image-js@0.36.0/dist/image.min.js',
+                '/libs/image.min.js' // Assumes local copy
+            ];
+            script.src = fallbackUrls.shift();
+            script.defer = true;
+            script.onload = () => {
+                window.imageJSAvailable = true;
+                console.log(`image-js loaded from ${script.src}`);
+                updateConverterOptions();
+            };
+            script.onerror = () => {
+                if (fallbackUrls.length) {
+                    script.src = fallbackUrls.shift();
+                    document.head.appendChild(script);
+                } else {
+                    console.error('All image-js fallbacks failed.');
+                    window.imageJSAvailable = false;
+                    updateConverterOptions();
+                }
+            };
+            document.head.appendChild(script);
+        }
+
+        // Update Converter Options
+        function updateConverterOptions() {
+            const outputFormat = document.getElementById('outputFormat');
+            if (!outputFormat) return;
+            const tiffOption = outputFormat.querySelector('option[value="tiff"]');
+            const avifOption = outputFormat.querySelector('option[value="avif"]');
+            if (!window.imageJSAvailable) {
+                if (tiffOption) tiffOption.disabled = true;
+                if (avifOption) avifOption.disabled = true;
+            } else {
+                if (tiffOption) tiffOption.disabled = false;
+                if (avifOption) avifOption.disabled = false;
+            }
+        }
+
         // Global Variables
         let cropStart = null;
         let cropRect = null;
@@ -437,16 +320,14 @@ System: The code was cut off due to length. I'll provide the complete updated co
                     reject(new Error('Invalid file type. Please select a valid image file (PNG, JPEG, WEBP, BMP, GIF, TIFF, HEIC).'));
                     return;
                 }
-                
-                // Check if libheif is loaded for HEIC/HEIF
-                if ((fileType === 'image/heic' || fileType === 'image/heif') && !window.libheif) {
-                    reject(new Error('HEIC/HEIF support is not available. Please try a different browser or file format.'));
+
+                if ((fileType === 'image/heic' || fileType === 'image/heif') && !window.heic2anyAvailable) {
+                    reject(new Error('HEIC support is not available. Please try a different file format.'));
                     return;
                 }
-                
-                // Check if image-js is loaded for TIFF
+
                 if ((fileType === 'image/tiff' || fileType === 'image/tif') && !window.imageJSAvailable) {
-                    reject(new Error('TIFF support is not available due to missing image-js library. Please try a different file format.'));
+                    reject(new Error('TIFF support is not available. Please try a different file format.'));
                     return;
                 }
 
@@ -454,18 +335,12 @@ System: The code was cut off due to length. I'll provide the complete updated co
                     const reader = new FileReader();
                     reader.onload = async (e) => {
                         try {
-                            const libheif = window.libheif;
-                            if (!libheif) throw new Error('libheif-js not loaded');
-                            const heifBuffer = new Uint8Array(e.target.result);
-                            const decoder = new libheif.HeifDecoder();
-                            const data = decoder.decode(heifBuffer);
-                            if (!data || data.length === 0) throw new Error('Invalid HEIC file');
-                            const imgData = data[0].display(data[0], { quality: 1 });
-                            const blob = await new Promise(resolveBlob => imgData.toBlob(resolveBlob, 'image/png'));
+                            const blob = new Blob([e.target.result], { type: fileType });
+                            const convertedBlob = await heic2any({ blob, toType: 'image/png' });
                             const img = new Image();
                             img.onload = () => resolve(img);
                             img.onerror = () => reject(new Error('Failed to load HEIC image'));
-                            img.src = URL.createObjectURL(blob);
+                            img.src = URL.createObjectURL(convertedBlob);
                         } catch (err) {
                             reject(new Error('Error processing HEIC image: ' + err.message));
                         }
@@ -517,11 +392,8 @@ System: The code was cut off due to length. I'll provide the complete updated co
             const scale = Math.min(maxWidth / image.width, 1);
             const pixelRatio = window.devicePixelRatio || 1;
 
-            // Set CSS size
             canvas.style.width = `${image.width * scale}px`;
             canvas.style.height = `${image.height * scale}px`;
-
-            // Set canvas drawing resolution
             canvas.width = image.width * scale * pixelRatio;
             canvas.height = image.height * scale * pixelRatio;
             ctx.scale(pixelRatio, pixelRatio);
@@ -554,8 +426,6 @@ System: The code was cut off due to length. I'll provide the complete updated co
                     alert('Error loading image: ' + err.message);
                 }
             });
-        } else {
-            console.error('Element with ID "cropUpload" not found.');
         }
 
         const cropCanvas = document.getElementById('cropCanvas');
@@ -582,7 +452,6 @@ System: The code was cut off due to length. I'll provide the complete updated co
                     width: Math.abs(currentX - cropStart.x),
                     height: Math.abs(currentY - cropStart.y),
                 };
-                console.log('Crop Rect:', cropRect); // Debug output
                 const ctx = cropCanvas.getContext('2d');
                 ctx.clearRect(0, 0, cropCanvas.width / pixelRatio, cropCanvas.height / pixelRatio);
                 ctx.drawImage(originalCropImage, 0, 0, cropCanvas.width / pixelRatio, cropCanvas.height / pixelRatio);
@@ -593,8 +462,6 @@ System: The code was cut off due to length. I'll provide the complete updated co
             cropCanvas.addEventListener('mouseup', () => {
                 isDrawing = false;
             });
-        } else {
-            console.error('Element with ID "cropCanvas" not found.');
         }
 
         const cropBtn = document.getElementById('cropBtn');
@@ -622,8 +489,6 @@ System: The code was cut off due to length. I'll provide the complete updated co
                 if (downloadCrop) downloadCrop.style.display = 'inline-block';
                 if (resetCrop) resetCrop.style.display = 'inline-block';
             });
-        } else {
-            console.error('Element with ID "cropBtn" not found.');
         }
 
         const resetCrop = document.getElementById('resetCrop');
@@ -639,8 +504,6 @@ System: The code was cut off due to length. I'll provide the complete updated co
                     if (resetCropBtn) resetCropBtn.style.display = 'none';
                 }
             });
-        } else {
-            console.error('Element with ID "resetCrop" not found.');
         }
 
         const downloadCrop = document.getElementById('downloadCrop');
@@ -656,8 +519,6 @@ System: The code was cut off due to length. I'll provide the complete updated co
                     alert('No cropped image to download.');
                 }
             });
-        } else {
-            console.error('Element with ID "downloadCrop" not found.');
         }
 
         // Resize Functionality
@@ -680,8 +541,6 @@ System: The code was cut off due to length. I'll provide the complete updated co
                     alert('Error loading image: ' + err.message);
                 }
             });
-        } else {
-            console.error('Element with ID "resizeUpload" not found.');
         }
 
         const resizeBtn = document.getElementById('resizeBtn');
@@ -709,8 +568,6 @@ System: The code was cut off due to length. I'll provide the complete updated co
                 if (downloadResize) downloadResize.style.display = 'inline-block';
                 if (resetResize) resetResize.style.display = 'inline-block';
             });
-        } else {
-            console.error('Element with ID "resizeBtn" not found.');
         }
 
         const resetResize = document.getElementById('resetResize');
@@ -725,8 +582,6 @@ System: The code was cut off due to length. I'll provide the complete updated co
                     if (resetResizeBtn) resetResizeBtn.style.display = 'none';
                 }
             });
-        } else {
-            console.error('Element with ID "resetResize" not found.');
         }
 
         const downloadResize = document.getElementById('downloadResize');
@@ -742,8 +597,6 @@ System: The code was cut off due to length. I'll provide the complete updated co
                     alert('No resized image to download.');
                 }
             });
-        } else {
-            console.error('Element with ID "downloadResize" not found.');
         }
 
         // Image Converter
@@ -764,8 +617,6 @@ System: The code was cut off due to length. I'll provide the complete updated co
                     alert('Error loading image: ' + err.message);
                 }
             });
-        } else {
-            console.error('Element with ID "convertUpload" not found.');
         }
 
         const convertBtn = document.getElementById('convertBtn');
@@ -774,35 +625,23 @@ System: The code was cut off due to length. I'll provide the complete updated co
                 const fileInput = document.getElementById('convertUpload');
                 const outputFormat = document.getElementById('outputFormat');
                 const loading = document.getElementById('convertLoading');
-                if (!fileInput || !outputFormat || !loading) {
-                    console.error('Convert tool elements not found.');
-                    return;
-                }
+                if (!fileInput || !outputFormat || !loading) return;
                 if (!fileInput.files[0]) {
                     alert('Please upload an image first.');
                     return;
                 }
-                if ((outputFormat.value === 'tiff' || outputFormat.value === 'avif' || outputFormat.value === 'ico') && !window.imageJSAvailable) {
-                    alert(`${outputFormat.value.toUpperCase()} conversion is not available due to missing image-js library. Please select another format.`);
+                if ((outputFormat.value === 'tiff' || outputFormat.value === 'avif') && !window.imageJSAvailable) {
+                    alert(`${outputFormat.value.toUpperCase()} conversion is not available. Please select another format.`);
                     return;
                 }
                 loading.style.display = 'block';
                 try {
                     const img = await loadImage(fileInput.files[0]);
                     const canvas = document.createElement('canvas');
-                    let width = img.width;
-                    let height = img.height;
-
-                    // For ICO, resize to 64x64 (common icon size)
-                    if (outputFormat.value === 'ico') {
-                        width = 64;
-                        height = 64;
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
+                    canvas.width = img.width;
+                    canvas.height = img.height;
                     const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, width, height);
+                    ctx.drawImage(img, 0, 0, img.width, img.height);
                     const link = document.createElement('a');
 
                     if (outputFormat.value === 'tiff') {
@@ -819,13 +658,6 @@ System: The code was cut off due to length. I'll provide the complete updated co
                         const blob = new Blob([buffer], { type: 'image/avif' });
                         link.href = URL.createObjectURL(blob);
                         link.download = 'converted.avif';
-                    } else if (outputFormat.value === 'ico') {
-                        const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-                        const image = await imageJS.Image.load(pngBlob);
-                        const buffer = await image.toBuffer('ico');
-                        const blob = new Blob([buffer], { type: 'image/x-icon' });
-                        link.href = URL.createObjectURL(blob);
-                        link.download = 'converted.ico';
                     } else {
                         link.href = canvas.toDataURL(`image/${outputFormat.value}`, outputFormat.value === 'jpeg' ? 0.9 : 1);
                         link.download = `converted.${outputFormat.value}`;
@@ -838,22 +670,15 @@ System: The code was cut off due to length. I'll provide the complete updated co
                     loading.style.display = 'none';
                 }
             });
-        } else {
-            console.error('Element with ID "convertBtn" not found.');
         }
 
-        // Initialize converter options on load
+        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             updateConverterOptions();
-            // Drag and Drop Setup
             function setupDragDrop(dragAreaId, inputId) {
                 const dragArea = document.getElementById(dragAreaId);
                 const fileInput = document.getElementById(inputId);
-                if (!dragArea || !fileInput) {
-                    console.error(`Drag area (${dragAreaId}) or file input (${inputId}) not found.`);
-                    return;
-                }
-
+                if (!dragArea || !fileInput) return;
                 dragArea.addEventListener('click', () => fileInput.click());
                 dragArea.addEventListener('dragover', (e) => {
                     e.preventDefault();
@@ -876,10 +701,31 @@ System: The code was cut off due to length. I'll provide the complete updated co
                     }
                 });
             }
-
             setupDragDrop('cropDragArea', 'cropUpload');
             setupDragDrop('resizeDragArea', 'resizeUpload');
             setupDragDrop('convertDragArea', 'convertUpload');
+        });
+
+        // External Libraries (deferred)
+        const scripts = [
+            {
+                src: 'https://cdn.jsdelivr.net/npm/image-js@0.36.0/dist/image.min.js',
+                onload: () => { window.imageJSAvailable = true; updateConverterOptions(); },
+                onerror: () => loadImageJSFallback('cdn')
+            },
+            {
+                src: 'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js',
+                onload: () => { window.heic2anyAvailable = true; },
+                onerror: () => { console.error('Failed to load heic2any'); window.heic2anyAvailable = false; }
+            }
+        ];
+        scripts.forEach(s => {
+            const script = document.createElement('script');
+            script.src = s.src;
+            script.defer = true;
+            script.onload = s.onload;
+            script.onerror = s.onerror;
+            document.head.appendChild(script);
         });
     </script>
 </body>
