@@ -78,8 +78,8 @@
             padding: 0.75em 1.5em;
         }
         .tab-buttons button.active-tab { background-color: #005fa3; }
-        canvas { margin: 1em auto; display: block; max-width: 400px; border: 1px solid #ccc; }
-        .loading { display: none; color: #007acc; font-weight: bold; margin: 1em auto; }
+        canvas { margin: 1em auto; display: block; max-width: 400px; border: 8px; }
+        .loading { display: block; color: #999; font-weight: bold; margin: 2em auto; }
         .resize-controls input {
             width: 45%;
             max-width: 180px;
@@ -88,16 +88,16 @@
         .tool-section { display: none; }
         .tool-section.active { display: block; }
         .drag-drop-area {
-            width: 90%;
+            width: 100%;
             max-width: 400px;
-            margin: 1em auto;
+            margin: 2em auto;
             padding: 2em;
             border: 2px dashed #ccc;
             border-radius: 6px;
             background: #fff;
-            color: #666;
+            color: #999;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: box-shadow 0.3s ease;
         }
         .drag-drop-area.drag-over { background: #e6f0fa; }
         hr { margin: 2em auto; width: 80%; border: 0; border-top: 1px solid #ddd; }
@@ -105,11 +105,11 @@
         .sister-site-btn {
             display: block;
             background: #ff6600;
-            color: white;
             padding: 0.75em 1.5em;
             margin: 1em auto;
             border-radius: 6px;
             text-decoration: none;
+            color: white;
             font-weight: bold;
             max-width: 400px;
             width: 90%;
@@ -119,7 +119,7 @@
         .sister-site-btn:hover { background-color: #cc5200; }
         .sister-tools-section { margin: 2em auto; }
         .sister-tools-section h2 { font-size: 1.8em; color: #333; }
-        .sister-tools-section p { font-size: 1em; max-width: 600px; margin: 1em auto; }
+        .sister-tools-section p { font-size: 1em; max-width: 600px; margin: 0 auto; }
         .ad-container {
             margin: 1em auto;
             max-width: 100%;
@@ -169,7 +169,7 @@
     <!-- Resize Tool -->
     <div id="resize" class="tool-section">
         <h2>Image Resizer</h2>
-        <p><i>Resize your image to the specified dimensions. The image will be stretched or squashed to fit without padding.</i></p>
+        <p><i>Resize your image to specified dimensions. The image will be stretched or squashed to fit without padding.</i></p>
         <div class="drag-drop-area" id="resizeDragArea">Drag your picture here or click to browse</div>
         <input type="file" id="resizeUpload" accept="image/*,.heic,.heif" style="display: none;" />
         <div class="resize-controls">
@@ -469,7 +469,7 @@
                     const downloadCrop = document.getElementById('downloadCrop');
                     const resetCropBtn = document.getElementById('resetCrop');
                     if (downloadCrop) downloadCrop.style.display = 'none';
-                    if (resetCropBtn) resetCrop.style.display = 'none';
+                    if (resetCropBtn) resetCropBtn.style.display = 'none';
                 }
             });
         }
@@ -479,12 +479,12 @@
             downloadCrop.addEventListener('click', () => {
                 if (croppedImage) {
                     const link = document.createElement('a');
-                    link.download = 'cropped.png';
+                    link.download = 'cropped-image.png';
                     link.href = croppedImage.toDataURL('image/png');
                     link.click();
                     URL.revokeObjectURL(link.href);
                 } else {
-                    alert('No cropped image to download.');
+                    alert('No cropped image available for download.');
                 }
             });
         }
@@ -518,17 +518,19 @@
                     alert('Please upload an image first.');
                     return;
                 }
-                const tw = parseInt(document.getElementById('resizeWidth')?.value);
-                const th = parseInt(document.getElementById('resizeHeight')?.value);
-                if (isNaN(tw) || isNaN(th) || tw <= 0 || th <= 0) {
-                    alert('Please enter valid width and height.');
+                const resizeWidth = document.getElementById('resizeWidth');
+                const resizeHeight = document.getElementById('resizeHeight');
+                const targetWidth = parseInt(resizeWidth.value);
+                const targetHeight = parseInt(resizeHeight.value);
+                if (isNaN(targetWidth) || isNaN(targetHeight) || targetWidth <= 0 || targetHeight <= 0) {
+                    alert('Please enter valid width and height values.');
                     return;
                 }
                 const canvas = document.createElement('canvas');
-                canvas.width = tw;
-                canvas.height = th;
+                canvas.width = targetWidth;
+                canvas.height = targetHeight;
                 const ctx = canvas.getContext('2d');
-                ctx.drawImage(originalResizeImage, 0, 0, originalResizeImage.width, originalResizeImage.height, 0, 0, tw, th);
+                ctx.drawImage(originalResizeImage, 0, 0, originalResizeImage.width, originalResizeImage.height, 0, 0, targetWidth, targetHeight);
                 resizedImage = canvas;
                 drawImageOnCanvas(resizedImage, 'resizeCanvas');
                 const downloadResize = document.getElementById('downloadResize');
@@ -557,12 +559,12 @@
             downloadResize.addEventListener('click', () => {
                 if (resizedImage) {
                     const link = document.createElement('a');
-                    link.download = 'resized.png';
+                    link.download = 'resized-image.png';
                     link.href = resizedImage.toDataURL('image/png');
                     link.click();
                     URL.revokeObjectURL(link.href);
                 } else {
-                    alert('No resized image to download.');
+                    alert('No resized image available for download.');
                 }
             });
         }
@@ -592,13 +594,13 @@
             convertBtn.addEventListener('click', async () => {
                 const fileInput = document.getElementById('convertUpload');
                 const outputFormat = document.getElementById('outputFormat');
-                const loading = document.getElementById('convertLoading');
-                if (!fileInput || !outputFormat || !loading) return;
+                const loadingImg = document.getElementById('convertLoading');
+                if (!fileInput || !outputFormat || !loadingImg) return;
                 if (!fileInput.files[0]) {
                     alert('Please upload an image first.');
                     return;
                 }
-                loading.style.display = 'block';
+                loadingImg.style.display = 'block';
                 try {
                     const img = await loadImage(fileInput.files[0]);
                     const canvas = document.createElement('canvas');
@@ -614,14 +616,14 @@
                 } catch (err) {
                     alert('Error converting image: ' + err.message);
                 } finally {
-                    loading.style.display = 'none';
+                    loadingImg.style.display = 'none';
                 }
             });
         }
 
-        // Initialize
+        // Initialize Drag and Drop
         document.addEventListener('DOMContentLoaded', () => {
-            function setupDragDrop(dragAreaId, inputId) {
+            function setupDragAndDrop(dragAreaId, inputId) {
                 const dragArea = document.getElementById(dragAreaId);
                 const fileInput = document.getElementById(inputId);
                 if (!dragArea || !fileInput) return;
@@ -634,7 +636,9 @@
                     e.preventDefault();
                     dragArea.classList.add('drag-over');
                 });
-                dragArea.addEventListener('dragleave', () => dragArea.classList.remove('drag-over'));
+                dragArea.addEventListener('dragleave', () => {
+                    dragArea.classList.remove('drag-over');
+                });
                 dragArea.addEventListener('drop', (e) => {
                     e.preventDefault();
                     dragArea.classList.remove('drag-over');
@@ -647,9 +651,9 @@
                     }
                 });
             }
-            setupDragDrop('cropDragArea', 'cropUpload');
-            setupDragDrop('resizeDragArea', 'resizeUpload');
-            setupDragDrop('convertDragArea', 'convertUpload');
+            setupDragAndDrop('cropDragArea', 'cropUpload');
+            setupDragAndDrop('resizeDragArea', 'resizeUpload');
+            setupDragAndDrop('convertDragArea', 'convertUpload');
         });
     </script>
 </body>
