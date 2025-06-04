@@ -20,6 +20,14 @@
     <title>Free Image Toolkit - Crop, Resize, Convert</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="canonical" href="https://free-image-toolkit.com">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-C4SSJKXG4Z"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-C4SSJKXG4Z');
+    </script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4041775163958551" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" onload="window.heic2anyAvailable = true;" onerror="console.error('Failed to load heic2any'); window.heic2anyAvailable = false;"></script>
     <script type="application/ld+json">
     {
@@ -112,10 +120,31 @@
         .sister-tools-section { margin: 2em auto; }
         .sister-tools-section h2 { font-size: 1.8em; color: #333; }
         .sister-tools-section p { font-size: 1em; max-width: 600px; margin: 1em auto; }
+        .ad-container {
+            margin: 1em auto;
+            max-width: 100%;
+            text-align: center;
+        }
+        @media (max-width: 600px) {
+            .ad-container {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
     <h1>Free Image Toolkit</h1>
+    <div class="ad-container">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-4041775163958551"
+             data-ad-slot="1294132268"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
     <p>Crop, resize, and convert images in PNG, JPEG, WEBP, BMP, GIF, or HEIC</p>
 
     <!-- Tab Navigation -->
@@ -171,6 +200,18 @@
         <button id="convertBtn">Convert & Download</button>
     </div>
 
+    <div class="ad-container">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-4041775163958551"
+             data-ad-slot="8266734729"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+
     <hr>
 
     <!-- Sister Sites Section -->
@@ -189,20 +230,20 @@
     </div>
 
     <footer>
-        Free Image Toolkit | Made with ❤️
+        <div class="ad-container">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4041775163958551"
+                 data-ad-slot="5895113449"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+        <p>Free Image Toolkit | Made with ❤️</p>
     </footer>
 
-    <!-- Analytics Script -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-C4SSJKXG4Z"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-C4SSJKXG4Z');
-    </script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4041775163958551" crossorigin="anonymous"></script>
-
-    <!-- Main JavaScript -->
     <script>
         // Library Availability Flag
         window.heic2anyAvailable = false;
@@ -380,8 +421,8 @@
                     height: Math.abs(currentY - cropStart.y),
                 };
                 const ctx = cropCanvas.getContext('2d');
-                ctx.clearRect(0, 0, cropCanvas.width / pixelRatio, canvas.height / pixelRatio);
-                ctx.drawImage(originalCropImage, 0, 0, cropCanvas.width / pixelRatio, canvas.height / pixelRatio);
+                ctx.clearRect(0, 0, cropCanvas.width / pixelRatio, cropCanvas.height / pixelRatio);
+                ctx.drawImage(originalCropImage, 0, 0, cropCanvas.width / pixelRatio, cropCanvas.height / pixelRatio);
                 ctx.strokeStyle = 'red';
                 ctx.lineWidth = 2;
                 ctx.strokeRect(cropRect.x / pixelRatio, cropRect.y / pixelRatio, cropRect.width / pixelRatio, cropRect.height / pixelRatio);
@@ -428,7 +469,7 @@
                     const downloadCrop = document.getElementById('downloadCrop');
                     const resetCropBtn = document.getElementById('resetCrop');
                     if (downloadCrop) downloadCrop.style.display = 'none';
-                    if (resetCropBtn) resetCropBtn.style.display = 'none';
+                    if (resetCropBtn) resetCrop.style.display = 'none';
                 }
             });
         }
