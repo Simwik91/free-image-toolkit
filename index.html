@@ -1083,6 +1083,7 @@
         e.preventDefault();
         dragArea.classList.remove('drag-over');
         const files = e.dataTransfer.files;
+        // FIXED: Removed extra parenthesis that caused syntax error
         if (files.length > 0 && (files[0].type.startsWith('image/') || ['image/heic', 'image/heif'].includes(files[0].type))) {
           fileInput.files = files;
           fileInput.dispatchEvent(new Event('change'));
