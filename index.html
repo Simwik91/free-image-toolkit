@@ -916,7 +916,7 @@
 
     function hideElements(section = null) {
       const errors = section ? [document.getElementById(`${section}-error`)] : document.querySelectorAll('.error');
-      const successes = section ? [document.getElementById(`${section}-success`]) : document.querySelectorAll('.success');
+      const successes = section ? [document.getElementById(`${section}-success`)] : document.querySelectorAll('.success');
       errors.forEach(el => el && (el.style.display = 'none'));
       successes.forEach(s => s && (s.style.display = 'none'));
     }
