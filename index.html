@@ -937,7 +937,7 @@
           return;
         }
 
-        if ((fileType === 'image/heic' || fileType === 'image/heif') && !window.heic2anyAvailable) {
+        if (fileType === 'image/heic' || fileType === 'image/heif') && !window.heic2anyAvailable) {
           reject(new Error('HEIC/HEIF support is not available. Please try a different file format.'));
           return;
         }
