@@ -240,13 +240,13 @@
 
     canvas {
       margin: 1.5em auto;
-      display: block;
       max-width: 100%;
       border-radius: 12px;
-      background: white;
+      background: #f5f5f5;
       padding: 15px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
       border: 1px solid var(--light-gray);
+      display: block;
     }
 
     .loading {
@@ -276,10 +276,7 @@
       border-radius: var(--border-radius);
       margin: 20px 0;
       border-left: 4px solid #e74c3c;
-    }
-
-    .error:not(:empty) {
-      display: block;
+      display: none;
     }
 
     .success {
@@ -289,10 +286,7 @@
       border-radius: var(--border-radius);
       margin: 20px 0;
       border-left: 4px solid #27ae60;
-    }
-
-    .success:not(:empty) {
-      display: block;
+      display: none;
     }
 
     .btn-group {
@@ -345,6 +339,8 @@
 
     .visually-hidden {
       position: absolute;
+      top: -9999px;
+      left: -9999px;
       width: 1px;
       height: 1px;
       padding: 0;
@@ -704,7 +700,7 @@
           <div class="spinner"></div>
           Processing Image...
         </div>
-        <canvas id="cropCanvas"></canvas>
+        <canvas id="cropCanvas" width="300" height="200"></canvas>
         <div class="btn-group">
           <button id="cropBtn" style="display: none;">
             <i class="fas fa-crop"></i> Crop Image
@@ -740,7 +736,7 @@
           <div class="spinner"></div>
           Processing Image...
         </div>
-        <canvas id="resizeCanvas"></canvas>
+        <canvas id="resizeCanvas" width="300" height="200"></canvas>
         <div class="btn-group">
           <button id="resizeBtn" style="display: none;">
             <i class="fas fa-expand"></i> Resize Image
@@ -774,9 +770,9 @@
           <div class="spinner"></div>
           Processing Image...
         </div>
-        <canvas id="convertCanvas"></canvas>
+        <canvas id="convertCanvas" width="300" height="200"></canvas>
         <div class="btn-group">
-          <button id="convertBtn">
+          <button id="convertBtn" style="display: none;">
             <i class="fas fa-exchange-alt"></i> Convert & Download
           </button>
         </div>
@@ -926,28 +922,34 @@
 
     // Helper Functions
     function showError(element, message) {
-      element.textContent = message;
-      element.style.display = 'block';
+      if (element) {
+        element.textContent = message;
+        element.style.display = 'block';
+      }
     }
 
     function showSuccess(element, message) {
-      element.textContent = message;
-      element.style.display = 'block';
+      if (element) {
+        element.textContent = message;
+        element.style.display = 'block';
+      }
     }
 
     function hideElements(section = null) {
       const errors = section ? [document.getElementById(`${section}-error`)] : document.querySelectorAll('.error');
       const successes = section ? [document.getElementById(`${section}-success`)] : document.querySelectorAll('.success');
-      errors.forEach(el => el && (el.style.display = 'none'));
-      successes.forEach(s => s && (s.style.display = 'none'));
+      errors.forEach(el => { if (el) { el.style.display = 'none'; el.textContent = ''; } });
+      successes.forEach(s => { if (s) { s.style.display = 'none'; s.textContent = ''; } });
     }
 
     function showLoading(section) {
-      document.getElementById(`${section}-loading`).style.display = 'block';
+      const loading = document.getElementById(`${section}-loading`);
+      if (loading) loading.style.display = 'block';
     }
 
     function hideLoading(section) {
-      document.getElementById(`${section}-loading`).style.display = 'none';
+      const loading = document.getElementById(`${section}-loading`);
+      if (loading) loading.style.display = 'none';
     }
 
     async function loadImage(file) {
@@ -1019,6 +1021,17 @@
       ctx.drawImage(image, 0, 0, canvas.width / pixelRatio, canvas.height / pixelRatio);
     }
 
+    function resetCanvas(canvasId) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      canvas.style.width = '300px';
+      canvas.style.height = '200px';
+      canvas.width = 300;
+      canvas.height = 200;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
     // Tab Switching
     function switchTab(tabName) {
       tabs.forEach(tab => tab.classList.remove('active'));
@@ -1031,34 +1044,41 @@
 
       // Reset states
       if (tabName === 'crop') {
-        if (originalCropImage) drawImageOnCanvas(originalCropImage, 'cropCanvas');
-        else {
-          cropCanvas.width = 0;
-          cropCanvas.height = 0;
+        if (originalCropImage) {
+          drawImageOnCanvas(originalCropImage, 'cropCanvas');
+          cropBtn.style.display = 'inline-block';
+        } else {
+          resetCanvas('cropCanvas');
+          cropBtn.style.display = 'none';
         }
         cropUpload.value = '';
-        cropBtn.style.display = 'none';
         downloadCrop.style.display = 'none';
         resetCrop.style.display = 'none';
         hideElements('crop');
         hideLoading('crop');
       } else if (tabName === 'resize') {
-        if (originalResizeImage) drawImageOnCanvas(originalResizeImage, 'resizeCanvas');
-        else {
-          resizeCanvas.width = 0;
-          resizeCanvas.height = 0;
+        if (originalResizeImage) {
+          drawImageOnCanvas(originalResizeImage, 'resizeCanvas');
+          resizeBtn.style.display = 'inline-block';
+        } else {
+          resetCanvas('resizeCanvas');
+          resizeBtn.style.display = 'none';
         }
         resizeUpload.value = '';
         resizeWidth.value = '';
         resizeHeight.value = '';
-        resizeBtn.style.display = 'none';
         downloadResize.style.display = 'none';
         resetResize.style.display = 'none';
         hideElements('resize');
         hideLoading('resize');
       } else if (tabName === 'convert') {
-        convertCanvas.width = 0;
-        convertCanvas.height = 0;
+        if (convertImage) {
+          drawImageOnCanvas(convertImage, 'convertCanvas');
+          convertBtn.style.display = 'inline-block';
+        } else {
+          resetCanvas('convertCanvas');
+          convertBtn.style.display = 'none';
+        }
         convertUpload.value = '';
         hideElements('convert');
         hideLoading('convert');
@@ -1079,6 +1099,11 @@
           }
         });
       });
+
+      // Initialize canvases with placeholder dimensions
+      resetCanvas('cropCanvas');
+      resetCanvas('resizeCanvas');
+      resetCanvas('convertCanvas');
     });
 
     // Drag and Drop Setup
@@ -1123,8 +1148,9 @@
           originalCropImage = await loadImage(file);
           drawImageOnCanvas(originalCropImage, 'cropCanvas');
           cropBtn.style.display = 'inline-block';
-          showSuccess(cropSuccess, 'Image loaded successfully!');
+          showSuccess(cropSuccess, 'Image loaded successfully.');
         } catch (err) {
+          resetCanvas('cropCanvas');
           showError(cropError, err.message);
         } finally {
           hideLoading('crop');
@@ -1157,7 +1183,7 @@
           height: Math.abs(currentY - cropStart.y),
         };
         const ctx = cropCanvas.getContext('2d');
-        ctx.clearRect(0, 0, cropCanvas.width / pixelRatio, cropCanvas.height / pixelRatio);
+        ctx.clearRect(0, 0, cropCanvas.width / pixelRatio, canvas.height / pixelRatio);
         ctx.drawImage(originalCropImage, 0, 0, cropCanvas.width / pixelRatio, cropCanvas.height / pixelRatio);
         ctx.strokeStyle = 'red';
         ctx.lineWidth = 2;
@@ -1216,6 +1242,8 @@
             resetCrop.style.display = 'none';
             cropBtn.style.display = 'inline-block';
             showSuccess(cropSuccess, 'Image reset successfully!');
+          } else {
+            resetCanvas('cropCanvas');
           }
         }
       });
@@ -1229,7 +1257,7 @@
           link.href = croppedImage.toDataURL('image/png');
           link.click();
           URL.revokeObjectURL(link.href);
-          showSuccess(cropSuccess, 'Cropped image downloaded!');
+          showSuccess(cropSuccess, 'Image downloaded successfully!');
         } else {
           showError(cropError, 'No cropped image available for download.');
         }
@@ -1250,6 +1278,7 @@
           showSuccess(resizeSuccess, 'Image loaded successfully!');
         } catch (err) {
           showError(resizeError, err.message);
+          resetCanvas('resizeCanvas');
         } finally {
           hideLoading('resize');
         }
@@ -1302,6 +1331,8 @@
             resetResize.style.display = 'none';
             resizeBtn.style.display = 'inline-block';
             showSuccess(resizeSuccess, 'Image reset successfully!');
+          } else {
+            resetCanvas('resizeCanvas');
           }
         }
       });
@@ -1315,7 +1346,7 @@
           link.href = resizedImage.toDataURL('image/png');
           link.click();
           URL.revokeObjectURL(link.href);
-          showSuccess(resizeSuccess, 'Resized image downloaded!');
+          showSuccess(resizeSuccess, 'Image downloaded successfully!');
         } else {
           showError(resizeError, 'No resized image available for download.');
         }
@@ -1332,9 +1363,11 @@
         try {
           convertImage = await loadImage(file);
           drawImageOnCanvas(convertImage, 'convertCanvas');
+          convertBtn.style.display = 'inline-block';
           showSuccess(convertSuccess, 'Image loaded successfully!');
         } catch (err) {
           showError(convertError, err.message);
+          resetCanvas('convertCanvas');
         } finally {
           hideLoading('convert');
         }
@@ -1344,7 +1377,7 @@
     if (convertBtn) {
       convertBtn.addEventListener('click', async () => {
         hideElements('convert');
-        if (!convertUpload.files[0]) {
+        if (!convertImage && !convertUpload.files[0]) {
           showError(convertError, 'Please upload an image first.');
           return;
         }
