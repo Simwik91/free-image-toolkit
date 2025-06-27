@@ -443,7 +443,6 @@
       box-shadow: var(--box-shadow);
     }
 
-    /* UPDATED: Ensure text and icons are pure white */
     .uses-section h2,
     .uses-section p {
       color: white !important;
@@ -471,17 +470,17 @@
     .use-card i {
       font-size: 2.5rem;
       margin-bottom: 20px;
-      color: white; /* Ensure icons are white */
+      color: white;
     }
 
     .use-card h3 {
       font-size: 1.3rem;
       margin-bottom: 15px;
-      color: white; /* Ensure headings are white */
+      color: white;
     }
 
     .use-card p {
-      color: white; /* Ensure paragraphs are white */
+      color: white;
     }
 
     .sister-tools-section {
@@ -551,7 +550,6 @@
       box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
     }
 
-    /* EveryTool.io card styling */
     .everytool-card {
       grid-column: 1 / -1;
       display: flex;
@@ -613,7 +611,6 @@
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
 
-    /* UPDATED: Footer with larger/bolder text and removed dash */
     footer {
       margin-top: auto;
       padding-top: 30px;
@@ -661,7 +658,6 @@
       font-size: 1rem;
     }
 
-    /* Cookie Consent Banner */
     #cookie-consent {
       position: fixed;
       bottom: 20px;
@@ -755,7 +751,6 @@
       color: var(--dark);
     }
 
-    /* Cookie Settings Modal */
     #cookie-settings {
       position: fixed;
       top: 0;
@@ -827,7 +822,6 @@
       font-size: 1.2rem;
     }
 
-    /* Responsive toggle switch from everytool.io */
     .toggle-switch {
       position: relative;
       display: inline-block;
@@ -896,7 +890,6 @@
     .toggle-switch input:disabled + .slider:before {
       background-color: #ddd;
     }
-    /* End responsive toggle switch */
 
     .cookie-type p {
       font-size: 0.9rem;
@@ -1037,7 +1030,6 @@
   </style>
 </head>
 <body>
-  <!-- Cookie Consent Banner -->
   <div id="cookie-consent" role="dialog" aria-labelledby="cookie-consent-banner" aria-describedby="cookie-consent-desc">
     <div class="sr-only" id="cookie-consent-banner">Cookie Consent</div>
     <div class="cookie-content" id="cookie-consent-desc">
@@ -1054,7 +1046,6 @@
     </div>
   </div>
 
-  <!-- Cookie Settings Modal -->
   <div id="cookie-settings" role="dialog" aria-labelledby="cookie-settings-title" aria-describedby="cookie-settings-desc">
     <div class="settings-modal">
       <div class="settings-header">
@@ -1343,10 +1334,15 @@
           <p>Convert, trim, and compress videos</p>
           <a href="https://free-video-toolkit.com/" class="sister-tool-btn" target="_blank" rel="noopener">Try Now</a>
         </div>
+        <div class="sister-tool">
+          <i class="fas fa-file-alt"></i>
+          <h3>Free PDF Toolkit</h3>
+          <p>Edit, merge, and convert PDF files effortlessly</p>
+          <a href="https://free-pdf-toolkit.com/" class="sister-tool-btn" target="_blank" rel="noopener">Try Now</a>
+        </div>
       </div>
     </div>
     
-    <!-- UPDATED: Footer with larger/bolder text -->
     <footer>
       <div class="footer-content">
         <span>© 2025</span>
@@ -1362,18 +1358,15 @@
     // Cookie Management Functions
     const COOKIE_CONSENT_KEY = 'cookieConsent';
     
-    // Get current cookie preferences
     function getCookiePreferences() {
       const preferences = localStorage.getItem(COOKIE_CONSENT_KEY);
       return preferences ? JSON.parse(preferences) : null;
     }
     
-    // Save cookie preferences
     function saveCookiePreferences(preferences) {
       localStorage.setItem(COOKIE_CONSENT_KEY, JSON.stringify(preferences));
     }
     
-    // Load Google Analytics
     function loadGoogleAnalytics() {
       if (window.gaLoaded) return;
       const gtagScript = document.createElement('script');
@@ -1387,7 +1380,6 @@
       window.gaLoaded = true;
     }
     
-    // Load Google AdSense
     function loadGoogleAdSense() {
       if (window.adsenseLoaded) return;
       const adsenseScript = document.createElement('script');
@@ -1398,15 +1390,12 @@
       window.adsenseLoaded = true;
     }
     
-    // Show cookie consent banner if needed
     function checkCookieConsent() {
       const preferences = getCookiePreferences();
       
       if (!preferences) {
-        // Show the consent banner if no preferences exist
         document.getElementById('cookie-consent').style.display = 'block';
       } else {
-        // Load analytics/ads if user previously consented
         if (preferences.analytics) loadGoogleAnalytics();
         if (preferences.advertising) loadGoogleAdSense();
       }
@@ -1423,51 +1412,40 @@
       document.getElementById('cookie-settings').style.display = 'none';
     }
 
-    // Initialize cookie consent
     document.addEventListener('DOMContentLoaded', function() {
-      // Set up cookie consent banner
       checkCookieConsent();
       
-      // Event listeners for consent buttons
       document.getElementById('accept-cookies').addEventListener('click', function() {
-        // Save preferences
         saveCookiePreferences({
           essential: true,
           analytics: true,
           advertising: true
         });
         
-        // Hide banner
         document.getElementById('cookie-consent').style.display = 'none';
         
-        // Load analytics and ads
         loadGoogleAnalytics();
         loadGoogleAdSense();
       });
       
       document.getElementById('reject-cookies').addEventListener('click', function() {
-        // Save preferences (only essential cookies)
         saveCookiePreferences({
           essential: true,
           analytics: false,
           advertising: false
         });
         
-        // Hide banner
         document.getElementById('cookie-consent').style.display = 'none';
       });
       
-      // Open cookie settings
       document.getElementById('open-settings').addEventListener('click', openCookieSettings);
       document.getElementById('open-settings-footer').addEventListener('click', function(e) {
         e.preventDefault();
         openCookieSettings();
       });
       
-      // Close cookie settings
       document.querySelector('.close-settings').addEventListener('click', closeCookieSettings);
       
-      // Save cookie settings
       document.getElementById('save-settings').addEventListener('click', function() {
         const preferences = {
           essential: true,
@@ -1477,7 +1455,6 @@
         
         saveCookiePreferences(preferences);
         
-        // Reload analytics/ads based on new preferences
         if (preferences.analytics) {
           loadGoogleAnalytics();
         }
@@ -1491,10 +1468,8 @@
       });
     });
     
-    // Library Availability Flag
     window.heic2anyAvailable = false;
 
-    // DOM Elements
     const tabs = document.querySelectorAll('.tab');
     const tabContents = document.querySelectorAll('.tab-content');
     const cropCanvas = document.getElementById('cropCanvas');
@@ -1523,7 +1498,6 @@
     const resizeHeight = document.getElementById('resizeHeight');
     const outputFormat = document.getElementById('outputFormat');
 
-    // Global Variables
     let cropStart = null;
     let cropRect = null;
     let isDrawing = false;
@@ -1533,7 +1507,6 @@
     let resizedImage = null;
     let convertImage = null;
 
-    // Helper Functions
     function showError(element, message) {
       if (element) {
         element.textContent = message;
@@ -1645,7 +1618,6 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    // Tab Switching
     function switchTab(tabName) {
       tabs.forEach(tab => tab.classList.remove('active'));
       tabContents.forEach(content => content.classList.remove('active'));
@@ -1655,7 +1627,6 @@
       if (tab) tab.classList.add('active');
       if (content) content.classList.add('active');
 
-      // Reset states
       if (tabName === 'crop') {
         if (originalCropImage) {
           drawImageOnCanvas(originalCropImage, 'cropCanvas');
@@ -1698,13 +1669,11 @@
       }
     }
 
-    // Initialize Tabs
     document.addEventListener('DOMContentLoaded', () => {
       tabs.forEach(tab => {
         tab.addEventListener('click', () => switchTab(tab.dataset.tab));
       });
 
-      // Enter key support for resize inputs
       [resizeWidth, resizeHeight].forEach(input => {
         input.addEventListener('keydown', (e) => {
           if (e.key === 'Enter') {
@@ -1713,13 +1682,11 @@
         });
       });
 
-      // Initialize canvases with placeholder dimensions
       resetCanvas('cropCanvas');
       resetCanvas('resizeCanvas');
       resetCanvas('convertCanvas');
     });
 
-    // Drag and Drop Setup
     function setupDragAndDrop(dragAreaId, inputId, section) {
       const dragArea = document.getElementById(dragAreaId);
       const fileInput = document.getElementById(inputId);
@@ -1750,7 +1717,6 @@
       });
     }
 
-    // Crop Functionality
     if (cropUpload) {
       cropUpload.addEventListener('change', async (e) => {
         const file = e.target.files[0];
@@ -1877,7 +1843,6 @@
       });
     }
 
-    // Resize Functionality
     if (resizeUpload) {
       resizeUpload.addEventListener('change', async (e) => {
         const file = e.target.files[0];
@@ -1966,7 +1931,6 @@
       });
     }
 
-    // Convert Functionality
     if (convertUpload) {
       convertUpload.addEventListener('change', async (e) => {
         const file = e.target.files[0];
@@ -2017,7 +1981,6 @@
       });
     }
 
-    // Initialize Drag and Drop
     setupDragAndDrop('cropDragArea', 'cropUpload', 'crop');
     setupDragAndDrop('resizeDragArea', 'resizeUpload', 'resize');
     setupDragAndDrop('convertDragArea', 'convertUpload', 'convert');
